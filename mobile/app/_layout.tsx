@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { NotificationBanner } from '../components/notifications/NotificationBanner';
+import { AnnouncementBanner } from '../components/announcements/AnnouncementBanner';
 import { ThemeProvider, useTheme } from '../context/ThemeContext';
 import { useAutoLock } from '../hooks/useAutoLock';
 import { loadLanguage } from '../constants/i18n';
@@ -197,6 +198,7 @@ function RootLayoutContent() {
     <View style={[styles.root, { backgroundColor: colors.background }]}>
       <Slot />
 
+      <AnnouncementBanner />
       <NotificationBanner
         body={banner?.body}
         title={banner?.title ?? ''}
