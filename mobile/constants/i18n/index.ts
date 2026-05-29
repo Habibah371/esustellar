@@ -6,6 +6,7 @@ import { initReactI18next } from 'react-i18next';
 
 import ar from '../../locales/ar.json';
 import en from '../../locales/en.json';
+import es from '../../locales/es.json';
 import fr from '../../locales/fr.json';
 import sw from '../../locales/sw.json';
 
@@ -13,7 +14,7 @@ export type SupportedLanguage = 'ar' | 'en' | 'es' | 'fr' | 'sw';
 export const LANGUAGE_STORAGE_KEY = 'esustellar_app_language';
 
 /** Languages written right-to-left. */
-const RTL_LANGUAGES: ReadonlySet<SupportedLanguage> = new Set(['ar']);
+const RTL_LANGUAGES: ReadonlySet<SupportedLanguage> = new Set<SupportedLanguage>(['ar']);
 
 export const languageOptions = [
   { label: 'العربية', value: 'ar' as SupportedLanguage },
@@ -33,110 +34,7 @@ const applyRTL = (lang: SupportedLanguage): void => {
 const resources = {
   ar: { translation: ar },
   en: { translation: en },
-  es: {
-    translation: {
-      tabs: {
-        home: 'Inicio',
-        groups: 'Grupos',
-        notifications: 'Notificaciones',
-        profile: 'Perfil',
-      },
-      home: {
-        goodMorning: 'Buenos días',
-        goodAfternoon: 'Buenas tardes',
-        goodEvening: 'Buenas noches',
-        defaultUser: 'Usuario de EsuStellar',
-        totalBalance: 'Saldo total',
-        quickActions: 'Accesos rápidos',
-        balanceValue: '— XLM',
-        notifications: 'Notificaciones',
-      },
-      onboarding: {
-        skip: 'Omitir',
-        next: 'Siguiente',
-        getStarted: 'Comenzar',
-        stayInformed: 'Mantente informado',
-        notificationBody:
-          'Recibe recordatorios de fechas de vencimiento, pagos y actualizaciones del grupo para no perderte ningún momento importante.',
-        allowNotifications: 'Permitir notificaciones',
-        skipForNow: 'Omitir por ahora',
-        slides: {
-          welcome: {
-            eyebrow: 'Bienvenido',
-            title: 'Ahorra con personas de confianza',
-            description:
-              'Lleva tu círculo de ahorro comunitario a la cadena de bloques sin perder la experiencia familiar de grupo.',
-          },
-          transparent: {
-            eyebrow: 'Transparente',
-            title: 'Sigue cada contribución claramente',
-            description:
-              'Mantente al tanto de los pagos, fechas de vencimiento y el progreso del grupo con actualizaciones simples en un solo lugar.',
-          },
-          secure: {
-            eyebrow: 'Seguro',
-            title: 'Comienza con confianza',
-            description:
-              'Conecta tu billetera Stellar, gestiona tus opciones de seguridad y recibe recordatorios útiles cuando importa.',
-          },
-        },
-      },
-      settings: {
-        title: 'Ajustes de seguridad',
-        walletAddress: 'Dirección de la billetera',
-        copyWalletAddress: 'Copiar dirección de la billetera',
-        copyToast: 'Dirección copiada al portapapeles',
-        copyFailed: 'No se pudo copiar la dirección',
-        biometricAuthentication: 'Autenticación biométrica',
-        supported: 'Compatible',
-        enableBiometrics: 'Activar biometría',
-        useToSignIn: 'Usa {{supportedLabel}} para iniciar sesión',
-        checkingDeviceCapabilities: 'Comprobando capacidades del dispositivo…',
-        biometricsNotSupported: 'La biometría no es compatible con este dispositivo',
-        setUpPinFallback:
-          'Configura un PIN como respaldo cuando la biometría no esté disponible.',
-        noBiometricsEnrolled: 'No hay biometría registrada',
-        setupBiometricsHelper:
-          'Configura huella o reconocimiento facial en los ajustes del dispositivo y vuelve aquí para activarlo.',
-        about: 'Acerca de',
-        version: 'Versión',
-        build: 'Compilación',
-        pinFallback: 'PIN de respaldo',
-        pinDescription:
-          'Configura un PIN de 4-6 dígitos como respaldo cuando la biometría no esté disponible.',
-        setUpPin: 'Configurar PIN',
-        enterPin: 'Ingresa tu PIN',
-        confirmYourPin: 'Confirma tu PIN',
-        pinDigits: '4-6 dígitos',
-        reenterPin: 'Vuelve a ingresar el PIN',
-        cancel: 'Cancelar',
-        next: 'Siguiente',
-        confirm: 'Confirmar',
-        pinSet: 'El PIN está configurado',
-        pinFallbackInfo: 'Se usa como respaldo cuando la biometría falla',
-        change: 'Cambiar',
-        remove: 'Eliminar',
-        pinMustDigits: 'El PIN debe tener 4-6 dígitos',
-        pinsDoNotMatch: 'Los PIN no coinciden',
-        biometricsEnabled: 'Autenticación biométrica activada',
-        biometricsDisabled: 'Autenticación biométrica desactivada',
-        biometricFailed: 'La verificación biométrica falló',
-        failedToSavePin: 'No se pudo guardar el PIN',
-        pinRemoved: 'PIN eliminado',
-        language: 'Idioma',
-        languageLabel: 'Elige el idioma de la aplicación',
-        languageChangeSuccess: 'Idioma actualizado.',
-      },
-      profile: {
-        editProfile: 'Editar perfil',
-        settings: 'Ajustes',
-        disconnectWallet: 'Desconectar billetera',
-      },
-      lock: {
-        tapToUnlock: 'Toca para desbloquear',
-      },
-    },
-  },
+  es: { translation: es },
   fr: { translation: fr },
   sw: { translation: sw },
 };
