@@ -2,12 +2,20 @@ import { useState, useEffect, useCallback } from "react";
 import { useWallet } from "@/hooks/use-wallet";
 import { useRegistryContract } from "@/context/registryContract";
 import { useSavingsContract } from "@/context/savingsContract";
-import {
-  buildPaymentInfo,
-  sortPayments,
-  GRACE_PERIOD,
-} from "@/lib/paymentDeadlines";
+import { getUrgencyLevel, sortPayments } from "@/lib/paymentDeadlines";
 import type { PaymentInfo } from "@/lib/paymentDeadlines";
+
+const STROOPS_PER_XLM = 10_000_000;
+const SECONDS_PER_DAY = 86_400;
+
+function unwrapEnum(value: unknown): string {
+  return Array.isArray(value) ? String(value[0]) : String(value);
+}
+
+function getDaysRemaining(deadline: number): number {
+  const nowTs = Math.floor(Date.now() / 1000);
+  return Math.ceil((deadline - nowTs) / SECONDS_PER_DAY);
+}
 
 export function useUpcomingPayments() {
   const { publicKey, isConnected } = useWallet();
@@ -33,11 +41,8 @@ export function useUpcomingPayments() {
 
       if (!contractAddresses || contractAddresses.length === 0) {
         setPayments([]);
-        setLoading(false);
         return;
       }
-
-      const nowTs = Math.floor(Date.now() / 1000);
 
       const results = await Promise.all(
         contractAddresses.map(async (contractAddress) => {
@@ -45,36 +50,34 @@ export function useUpcomingPayments() {
             const groupInfo = await registry.getGroupInfo(contractAddress);
             const group = await savings.getGroupById(groupInfo.group_id);
 
-            // Only active or open groups have upcoming payments
-            if (group.status !== "Active" && group.status !== "Open")
-              return null;
+            if (unwrapEnum(group.status) !== "Active") return null;
 
             const member = await savings.getMemberByGroup(
               publicKey,
               groupInfo.group_id,
             );
 
-            // Skip if already paid or defaulted
-            if (
-              member.status === "PaidCurrentRound" ||
-              member.status === "Defaulted"
-            )
-              return null;
+            if (unwrapEnum(member.status) !== "Active") return null;
 
-            const payment = buildPaymentInfo(
-              groupInfo.name,
-              groupInfo.group_id,
-              contractAddress,
-              group.contributionAmount,
-              Number(group.startTimestamp),
-              group.currentRound,
-              group.frequency,
+            const deadline = Number(
+              await savings.getRoundDeadlineByGroup(
+                groupInfo.group_id,
+                group.currentRound,
+              ),
             );
+            const daysRemaining = getDaysRemaining(deadline);
 
-            // Exclude if past deadline + grace period
-            if (nowTs >= payment.deadline + GRACE_PERIOD) return null;
-
-            return payment;
+            return {
+              groupName: group.name || groupInfo.name,
+              groupId: groupInfo.group_id,
+              contractAddress,
+              amountXLM: Number(group.contributionAmount) / STROOPS_PER_XLM,
+              deadline,
+              daysRemaining,
+              urgency: getUrgencyLevel(daysRemaining),
+              inGracePeriod: false,
+              graceDaysRemaining: 0,
+            } as PaymentInfo;
           } catch {
             return null;
           }
@@ -91,22 +94,28 @@ export function useUpcomingPayments() {
   }, [isConnected, publicKey, registry, savings]);
 
   const payNow = useCallback(
-    async (groupId: string, amountXLM: number) => {
+    async (groupId: string) => {
       if (!isConnected || !publicKey) throw new Error("Wallet not connected");
 
       setPayingGroupId(groupId);
       try {
         await savings.contribute(groupId);
-        await fetchPayments();
+        setPayments((current) =>
+          current.filter((payment) => payment.groupId !== groupId),
+        );
       } finally {
         setPayingGroupId(null);
       }
     },
-    [isConnected, publicKey, savings, fetchPayments],
+    [isConnected, publicKey, savings],
   );
 
   useEffect(() => {
-    fetchPayments();
+    const timeoutId = window.setTimeout(() => {
+      void fetchPayments();
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
   }, [fetchPayments]);
 
   return {

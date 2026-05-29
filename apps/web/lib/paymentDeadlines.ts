@@ -33,17 +33,10 @@ export function calculateDeadline(
 
 export function getUrgencyLevel(daysRemaining: number): UrgencyLevel {
   if (daysRemaining < 0) return "critical";
-  if (daysRemaining <= 2) return "urgent";
+  if (daysRemaining <= 3) return "urgent";
   if (daysRemaining <= 7) return "soon";
   return "normal";
 }
-
-const URGENCY_ORDER: Record<UrgencyLevel, number> = {
-  critical: 0,
-  urgent: 1,
-  soon: 2,
-  normal: 3,
-};
 
 export function buildPaymentInfo(
   groupName: string,
@@ -79,9 +72,5 @@ export function buildPaymentInfo(
 }
 
 export function sortPayments(payments: PaymentInfo[]): PaymentInfo[] {
-  return [...payments].sort((a, b) => {
-    const urgencyDiff = URGENCY_ORDER[a.urgency] - URGENCY_ORDER[b.urgency];
-    if (urgencyDiff !== 0) return urgencyDiff;
-    return a.deadline - b.deadline;
-  });
+  return [...payments].sort((a, b) => a.deadline - b.deadline);
 }

@@ -6,6 +6,7 @@ import { Calendar, AlertTriangle, Loader2, CheckCircle2 } from 'lucide-react'
 import { useUpcomingPayments } from '@/hooks/useUpcomingPayments'
 import { useState } from 'react'
 import type { PaymentInfo } from '@/lib/paymentDeadlines'
+import { useWallet } from '@/hooks/use-wallet'
 
 function formatDeadline(deadlineTs: number): string {
   return new Date(deadlineTs * 1000).toLocaleDateString('en-US', {
@@ -24,10 +25,12 @@ function urgencyBorder(urgency: PaymentInfo['urgency']): string {
 function PaymentCard({
   payment,
   isPaying,
+  error,
   onPay,
 }: {
   payment: PaymentInfo
   isPaying: boolean
+  error: string | null
   onPay: () => void
 }) {
   return (
@@ -70,6 +73,8 @@ function PaymentCard({
           'Pay Now'
         )}
       </Button>
+
+      {error && <p className="text-xs text-error mt-2">{error}</p>}
     </div>
   )
 }
@@ -87,15 +92,21 @@ function SkeletonCard() {
 
 export function UpcomingPayments() {
   const { payments, loading, error, payingGroupId, payNow, refetch } = useUpcomingPayments()
-  const [payError, setPayError] = useState<string | null>(null)
+  const { isConnected } = useWallet()
+  const [payErrors, setPayErrors] = useState<Record<string, string>>({})
 
   const handlePay = async (payment: PaymentInfo) => {
-    setPayError(null)
+    setPayErrors((current) => {
+      const next = { ...current }
+      delete next[payment.groupId]
+      return next
+    })
+
     try {
-      await payNow(payment.groupId, payment.amountXLM)
+      await payNow(payment.groupId)
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Payment failed'
-      setPayError(message)
+      setPayErrors((current) => ({ ...current, [payment.groupId]: message }))
     }
   }
 
@@ -108,7 +119,11 @@ export function UpcomingPayments() {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {loading ? (
+        {!isConnected ? (
+          <div className="text-center py-6">
+            <p className="text-sm text-muted-foreground">Connect your wallet to view upcoming payments.</p>
+          </div>
+        ) : loading ? (
           <div className="space-y-4">
             <SkeletonCard />
             <SkeletonCard />
@@ -127,14 +142,12 @@ export function UpcomingPayments() {
           </div>
         ) : (
           <div className="space-y-4">
-            {payError && (
-              <p className="text-xs text-error bg-error/10 rounded p-2">{payError}</p>
-            )}
             {payments.map((payment) => (
               <PaymentCard
                 key={payment.groupId}
                 payment={payment}
                 isPaying={payingGroupId === payment.groupId}
+                error={payErrors[payment.groupId] ?? null}
                 onPay={() => handlePay(payment)}
               />
             ))}
