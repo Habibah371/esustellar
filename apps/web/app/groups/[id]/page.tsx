@@ -1,6 +1,6 @@
 'use client'
 
-import { use, useEffect, useState } from 'react'
+import { use, useCallback, useEffect, useState } from 'react'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { GroupHeader } from '@/components/group-header'
@@ -54,6 +54,17 @@ export default function GroupDetailPage({ params }: { params: Promise<{ id: stri
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
+  const fetchGroup = useCallback(async () => {
+    const g = await getGroupById(id)
+    setGroup(toDisplayGroup(g))
+  }, [getGroupById, id])
+
+  const refreshGroup = useCallback(() => {
+    void fetchGroup().catch((err) => {
+      setError(err instanceof Error ? err.message : 'Failed to refresh group.')
+    })
+  }, [fetchGroup])
+
   useEffect(() => {
     let cancelled = false
     ;(async () => {
@@ -91,7 +102,7 @@ export default function GroupDetailPage({ params }: { params: Promise<{ id: stri
           )}
           {!loading && !error && group && (
             <>
-              <GroupHeader group={group} />
+              <GroupHeader groupId={id} group={group} onActionSuccess={refreshGroup} />
               <div className="mt-8 grid gap-6 lg:grid-cols-3">
                 <div className="lg:col-span-2 space-y-6">
                   <GroupMembers groupId={id} />
