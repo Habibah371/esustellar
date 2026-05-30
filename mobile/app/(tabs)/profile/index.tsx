@@ -13,6 +13,7 @@ import { Avatar } from '../../../components/ui/Avatar';
 import { Button } from '../../../components/ui/Button';
 import { DisconnectModal } from '../../../components/wallet/DisconnectModal';
 import { useAuthStore } from '../../../store/authStore';
+import { useTheme } from '../../../context/ThemeContext';
 
 // Truncate wallet address
 function truncateAddress(address: string): string {
@@ -24,6 +25,7 @@ const ProfileScreen = React.memo(() => {
   const wallet = useAuthStore((s) => s.wallet);
   const logout = useAuthStore((s) => s.logout);
   const [disconnectModalVisible, setDisconnectModalVisible] = useState(false);
+  const { colors } = useTheme();
 
   const displayName = 'EsuStellar User';
   const walletAddress = wallet?.publicKey || 'GABCD1234EFGH5678IJKL9012MNOP';
@@ -93,7 +95,7 @@ export default ProfileScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0F172A',
+    backgroundColor: colors.background,
   },
   content: {
     padding: 24,
@@ -107,13 +109,13 @@ const styles = StyleSheet.create({
   displayName: {
     fontSize: 22,
     fontWeight: '800',
-    color: '#F8FAFC',
+    color: colors.text,
     marginTop: 16,
     marginBottom: 4,
   },
   walletAddress: {
     fontSize: 15,
-    color: '#94A3B8',
+    color: colors.subtext,
   },
   section: {
     width: '100%',
@@ -125,22 +127,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 16,
     paddingHorizontal: 4,
-    backgroundColor: '#1E293B',
+    backgroundColor: colors.card,
     borderRadius: 12,
   },
   settingsLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#F8FAFC',
+    color: colors.text,
   },
   chevron: {
     fontSize: 24,
-    color: '#64748B',
+    color: colors.subtext,
     lineHeight: 24,
   },
   separator: {
     height: 1,
-    backgroundColor: '#334155',
+    backgroundColor: colors.border,
     marginVertical: 4,
   },
   spacer: {

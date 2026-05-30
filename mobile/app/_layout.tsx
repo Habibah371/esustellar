@@ -242,21 +242,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  overlay: {
+   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#6C63FF',
+    backgroundColor: '#0B1220',     // Dark background for overlay
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 9999,
   },
   overlayText: {
-    color: '#FFFFFF',
+    color: '#F3F4F6',
     fontSize: 28,
     fontWeight: '700',
     letterSpacing: 1,
   },
   lockHint: {
-    color: 'rgba(255,255,255,0.75)',
+    color: '#9CA3AF',
     fontSize: 14,
     marginTop: 16,
   },
