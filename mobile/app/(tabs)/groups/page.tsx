@@ -3,7 +3,7 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { FlatList, RefreshControl, SafeAreaView, View, Text, Pressable, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Badge, ErrorState, LoadingSkeleton, TextInput } from '../../../components/ui';
+import { Badge, EmptyState, ErrorState, LoadingSkeleton, TextInput } from '../../../components/ui';
 import { useDebounce } from '../../../hooks/useDebounce';
 import { useRefresh } from '../../../hooks/useRefresh';
 import { formatXLM } from '../../../utils/stellar';
@@ -194,11 +194,11 @@ export default function GroupsPage() {
       ) : error ? (
         <ErrorState message={error} onRetry={fetchGroups} />
       ) : (
-        <FlatList
+        <FlatList<Group>
           data={filteredGroups}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item: Group) => item.id}
           renderItem={renderGroup}
-          getItemLayout={(_, index) => ({ length: 110, offset: 110 * index, index })}
+          getItemLayout={(_: unknown, index: number) => ({ length: 110, offset: 110 * index, index })}
           removeClippedSubviews
           maxToRenderPerBatch={10}
           windowSize={5}
@@ -211,10 +211,12 @@ export default function GroupsPage() {
             />
           }
           ListEmptyComponent={
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyTitle}>No groups to show</Text>
-              <Text style={styles.emptyMessage}>Try another filter to see matching groups.</Text>
-            </View>
+            <EmptyState
+              tone="light"
+              illustration="groups"
+              title="No groups to show"
+              message="Try another filter or adjust your search to see matching groups."
+            />
           }
         />
       )}
@@ -325,21 +327,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#475569',
     marginTop: 4,
-  },
-  emptyState: {
-    marginTop: 32,
-    alignItems: 'center',
-  },
-  emptyTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#0F172A',
-    marginBottom: 8,
-  },
-  emptyMessage: {
-    fontSize: 15,
-    color: '#64748B',
-    textAlign: 'center',
-    maxWidth: 260,
   },
 });

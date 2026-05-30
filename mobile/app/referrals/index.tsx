@@ -11,6 +11,8 @@ import {
 } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { EmptyState } from '../../components/ui';
+import { formatDate } from '../../utils/formatDate';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -115,11 +117,7 @@ function StatsRow({ stats }: { stats: ReferralStats }) {
 }
 
 function ReferralRow({ item }: { item: Referral }) {
-  const date = new Date(item.joinedAt).toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
+  const date = formatDate(item.joinedAt, { month: 'short', day: 'numeric', year: 'numeric' });
   return (
     <View style={styles.referralRow}>
       <View style={styles.avatar}>
@@ -196,7 +194,7 @@ export default function ReferralsScreen({ publicKey }: ReferralsScreenProps) {
       style={styles.screen}
       contentContainerStyle={styles.content}
       data={referrals}
-      keyExtractor={(item) => item.id}
+      keyExtractor={(item: Referral) => item.id}
       ListHeaderComponent={
         <>
           <Text style={styles.heading}>Invite & earn</Text>
@@ -208,11 +206,14 @@ export default function ReferralsScreen({ publicKey }: ReferralsScreenProps) {
           {referrals.length > 0 && <Text style={styles.sectionTitle}>Your referrals</Text>}
         </>
       }
-      renderItem={({ item }) => <ReferralRow item={item} />}
+      renderItem={({ item }: { item: Referral }) => <ReferralRow item={item} />}
       ListEmptyComponent={
-        <View style={styles.emptyList}>
-          <Text style={styles.emptyText}>No referrals yet — share your code to get started!</Text>
-        </View>
+        <EmptyState
+          tone="light"
+          illustration="default"
+          title="No referrals yet"
+          message="Share your code to get started!"
+        />
       }
     />
   );
@@ -289,6 +290,4 @@ const styles = StyleSheet.create({
   badgeTextConfirmed: { color: '#065F46' },
   badgeTextPending: { color: '#92400E' },
 
-  emptyList: { alignItems: 'center', paddingVertical: 32 },
-  emptyText: { fontSize: 14, color: '#94A3B8', textAlign: 'center' },
 });

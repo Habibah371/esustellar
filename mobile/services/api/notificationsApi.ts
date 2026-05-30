@@ -5,6 +5,7 @@
 
 import { ApiResponse } from './groupsApi';
 import { Notification } from '../../types/notification';
+import { logger } from '../logger';
 
 class NotificationsApiService {
   private baseUrl: string;
@@ -18,7 +19,7 @@ class NotificationsApiService {
    */
   async getUserNotifications(userAddress: string): Promise<ApiResponse<Notification[]>> {
     try {
-      console.log(`Fetching notifications for user: ${userAddress}`);
+      logger.debug('NotificationsApi', 'Fetching user notifications');
 
       // Mock API call - replace with actual implementation
       await new Promise(resolve => setTimeout(resolve, 800));
@@ -45,7 +46,7 @@ class NotificationsApiService {
         data: mockNotifications,
       };
     } catch (error) {
-      console.error('Failed to fetch notifications:', error);
+      logger.error('NotificationsApi', 'Failed to fetch notifications', error);
       return {
         success: false,
         error: 'Failed to fetch notifications',

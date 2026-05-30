@@ -121,7 +121,8 @@ export default function TransactionHistory() {
           onEndReachedThreshold={0.3}
           ListEmptyComponent={
             <EmptyState
-              icon="📭"
+              tone="dark"
+              illustration="transactions"
               title="No transactions yet"
               message="Your contributions and payouts will appear here."
             />

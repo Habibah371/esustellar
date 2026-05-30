@@ -4,6 +4,7 @@
  */
 
 import { ApiResponse } from './groupsApi';
+import { logger } from '../logger';
 
 export interface Transaction {
   id: string;
@@ -32,7 +33,7 @@ class TransactionsApiService {
     limit: number = 20
   ): Promise<ApiResponse<Transaction[]>> {
     try {
-      console.log(`Fetching transactions for user: ${userAddress}`);
+      logger.debug('TransactionsApi', 'Fetching user transactions');
 
       // Mock API call - replace with actual implementation
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -65,7 +66,7 @@ class TransactionsApiService {
         data: mockTransactions,
       };
     } catch (error) {
-      console.error('Failed to fetch transactions:', error);
+      logger.error('TransactionsApi', 'Failed to fetch transactions', error);
       return {
         success: false,
         error: 'Failed to fetch transactions',
