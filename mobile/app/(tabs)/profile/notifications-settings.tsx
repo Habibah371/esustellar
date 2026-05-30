@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -9,12 +9,11 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 
-// Fallback storage implementation since AsyncStorage isn't available
 const storage = {
   async getItem(key: string): Promise<string | null> {
     try {
-      // Try to use localStorage as fallback (works in Expo Go)
       return localStorage.getItem(key);
     } catch {
       return null;
@@ -26,7 +25,7 @@ const storage = {
     } catch {
       // Silent fail for demo purposes
     }
-  }
+  },
 };
 
 const STORAGE_KEY = 'notification_settings';
@@ -47,11 +46,13 @@ const DEFAULT_SETTINGS: NotificationSettings = {
 
 export default function NotificationSettingsScreen() {
   const router = useRouter();
-  const [settings, setSettings] = useState<NotificationSettings>(DEFAULT_SETTINGS);
+  const { t } = useTranslation();
+  const [settings, setSettings] =
+    useState<NotificationSettings>(DEFAULT_SETTINGS);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadSettings();
+    void loadSettings();
   }, []);
 
   const loadSettings = async () => {
@@ -79,14 +80,16 @@ export default function NotificationSettingsScreen() {
 
   const updateSetting = (key: keyof NotificationSettings, value: boolean) => {
     const newSettings = { ...settings, [key]: value };
-    saveSettings(newSettings);
+    void saveSettings(newSettings);
   };
 
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading settings...</Text>
+          <Text style={styles.loadingText}>
+            {t('notificationSettings.loading')}
+          </Text>
         </View>
       </SafeAreaView>
     );
@@ -95,45 +98,61 @@ export default function NotificationSettingsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Text style={styles.backText}>← Back</Text>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.backButton}
+        >
+          <Text style={styles.backText}>← {t('common.back')}</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>Notification Settings</Text>
+        <Text style={styles.title}>{t('notificationSettings.title')}</Text>
         <View style={styles.placeholder} />
       </View>
 
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.content}>
           <Text style={styles.description}>
-            Choose which push notifications you want to receive
+            {t('notificationSettings.description')}
           </Text>
 
           <View style={styles.settingsList}>
             <View style={styles.settingItem}>
               <View style={styles.settingInfo}>
-                <Text style={styles.settingTitle}>Contribution Reminders</Text>
+                <Text style={styles.settingTitle}>
+                  {t('notificationSettings.contributionRemindersTitle')}
+                </Text>
                 <Text style={styles.settingDescription}>
-                  Get notified when your contributions are due
+                  {t('notificationSettings.contributionRemindersDescription')}
                 </Text>
               </View>
               <Switch
                 value={settings.contributionReminders}
-                onValueChange={(value: boolean) => updateSetting('contributionReminders', value)}
+                onValueChange={(value: boolean) =>
+                  updateSetting('contributionReminders', value)
+                }
                 trackColor={{ false: '#767577', true: '#4CAF50' }}
-                thumbColor={settings.contributionReminders ? '#ffffff' : '#f4f3f4'}
+                thumbColor={
+                  settings.contributionReminders ? '#ffffff' : '#f4f3f4'
+                }
               />
             </View>
 
             <View style={styles.settingItem}>
               <View style={styles.settingInfo}>
-                <Text style={styles.settingTitle}>Payout Received</Text>
+                <Text style={styles.settingTitle}>
+                  {t('notificationSettings.payoutReceivedTitle')}
+                </Text>
                 <Text style={styles.settingDescription}>
-                  Notifications when you receive payouts
+                  {t('notificationSettings.payoutReceivedDescription')}
                 </Text>
               </View>
               <Switch
                 value={settings.payoutReceived}
-                onValueChange={(value: boolean) => updateSetting('payoutReceived', value)}
+                onValueChange={(value: boolean) =>
+                  updateSetting('payoutReceived', value)
+                }
                 trackColor={{ false: '#767577', true: '#4CAF50' }}
                 thumbColor={settings.payoutReceived ? '#ffffff' : '#f4f3f4'}
               />
@@ -141,14 +160,18 @@ export default function NotificationSettingsScreen() {
 
             <View style={styles.settingItem}>
               <View style={styles.settingInfo}>
-                <Text style={styles.settingTitle}>New Member Joined</Text>
+                <Text style={styles.settingTitle}>
+                  {t('notificationSettings.newMemberJoinedTitle')}
+                </Text>
                 <Text style={styles.settingDescription}>
-                  When new members join your groups
+                  {t('notificationSettings.newMemberJoinedDescription')}
                 </Text>
               </View>
               <Switch
                 value={settings.newMemberJoined}
-                onValueChange={(value: boolean) => updateSetting('newMemberJoined', value)}
+                onValueChange={(value: boolean) =>
+                  updateSetting('newMemberJoined', value)
+                }
                 trackColor={{ false: '#767577', true: '#4CAF50' }}
                 thumbColor={settings.newMemberJoined ? '#ffffff' : '#f4f3f4'}
               />
@@ -156,14 +179,18 @@ export default function NotificationSettingsScreen() {
 
             <View style={styles.settingItem}>
               <View style={styles.settingInfo}>
-                <Text style={styles.settingTitle}>Group Status Changes</Text>
+                <Text style={styles.settingTitle}>
+                  {t('notificationSettings.groupStatusChangesTitle')}
+                </Text>
                 <Text style={styles.settingDescription}>
-                  Updates when group status changes
+                  {t('notificationSettings.groupStatusChangesDescription')}
                 </Text>
               </View>
               <Switch
                 value={settings.groupStatusChanges}
-                onValueChange={(value: boolean) => updateSetting('groupStatusChanges', value)}
+                onValueChange={(value: boolean) =>
+                  updateSetting('groupStatusChanges', value)
+                }
                 trackColor={{ false: '#767577', true: '#4CAF50' }}
                 thumbColor={settings.groupStatusChanges ? '#ffffff' : '#f4f3f4'}
               />

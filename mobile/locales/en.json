@@ -1,4 +1,12 @@
 {
+  "common": {
+    "appName": "EsuStellar",
+    "back": "Back",
+    "enable": "Enable",
+    "disable": "Disable",
+    "loading": "Loading...",
+    "unavailable": "Unavailable"
+  },
   "tabs": {
     "home": "Home",
     "groups": "Groups",
@@ -82,14 +90,62 @@
     "pinRemoved": "PIN removed",
     "language": "Language",
     "languageLabel": "Choose your app language",
-    "languageChangeSuccess": "Language updated."
+    "languageChangeSuccess": "Language updated.",
+    "haptics": "Haptics",
+    "hapticsDescription": "Use subtle vibration feedback for important interactions and status changes."
+  },
+  "groups": {
+    "title": "Groups",
+    "searchPlaceholder": "Search groups...",
+    "filters": {
+      "all": "All",
+      "joined": "Joined",
+      "open": "Open"
+    },
+    "errors": {
+      "fetchFailed": "Failed to fetch groups. Please check your connection and try again."
+    },
+    "emptyTitle": "No groups to show",
+    "emptyMessage": "Try another filter to see matching groups.",
+    "memberCount_one": "{{count}} member",
+    "memberCount_other": "{{count}} members"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "subtitle": "Trigger a local notification to verify foreground banners and tap navigation.",
+    "scheduleGroupDetail": "Schedule Group Detail Notification",
+    "scheduleFallback": "Schedule Fallback Notification",
+    "contributionDueTitle": "Contribution due",
+    "contributionDueBody": "Tap to open the group detail screen.",
+    "unknownDestinationTitle": "Unknown destination",
+    "unknownDestinationBody": "Tap to test the home-screen fallback route.",
+    "scheduledTitle": "Notification scheduled",
+    "scheduledBody": "A test notification will appear in 2 seconds.",
+    "fallbackScheduledTitle": "Fallback notification scheduled",
+    "fallbackScheduledBody": "A test notification with an unknown route will appear in 2 seconds.",
+    "unableToScheduleTitle": "Unable to schedule notification",
+    "unableToScheduleBody": "Please try again."
   },
   "profile": {
     "editProfile": "Edit Profile",
     "settings": "Settings",
     "disconnectWallet": "Disconnect Wallet"
   },
+  "notificationSettings": {
+    "loading": "Loading settings...",
+    "title": "Notification Settings",
+    "description": "Choose which push notifications you want to receive",
+    "contributionRemindersTitle": "Contribution Reminders",
+    "contributionRemindersDescription": "Get notified when your contributions are due",
+    "payoutReceivedTitle": "Payout Received",
+    "payoutReceivedDescription": "Notifications when you receive payouts",
+    "newMemberJoinedTitle": "New Member Joined",
+    "newMemberJoinedDescription": "When new members join your groups",
+    "groupStatusChangesTitle": "Group Status Changes",
+    "groupStatusChangesDescription": "Updates when group status changes"
+  },
   "lock": {
-    "tapToUnlock": "Tap to unlock"
+    "tapToUnlock": "Tap to unlock",
+    "biometricPrompt": "Unlock {{appName}}"
   }
 }
