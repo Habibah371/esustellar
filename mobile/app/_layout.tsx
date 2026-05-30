@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   AppState,
   AppStateStatus,
+  Pressable,
   StyleSheet,
   Text,
   View,
@@ -58,12 +59,18 @@ function RootLayoutContent() {
 
     const result = await biometricService.authenticate(
       t('lock.biometricPrompt', { appName: t('common.appName') }),
+      true,
     );
 
     if (result.success) {
       setLocked(false);
     }
   }, [t]);
+
+  const openPinFallback = useCallback(() => {
+    setLocked(false);
+    router.push('/security/enter-pin?reason=biometric-fallback');
+  }, [router]);
 
   useEffect(() => {
     const subscription = AppState.addEventListener(
@@ -80,12 +87,14 @@ function RootLayoutContent() {
           nextState === 'active' &&
           (prev === 'background' || prev === 'inactive')
         ) {
-          setMasked(false);
           const enabled = await AsyncStorage.getItem(BIOMETRIC_LOCK_KEY);
 
           if (enabled === 'true') {
             setLocked(true);
+            setMasked(false);
             await promptBiometric();
+          } else {
+            setMasked(false);
           }
         }
       },
@@ -227,6 +236,9 @@ function RootLayoutContent() {
           <Text style={styles.lockHint} onPress={promptBiometric}>
             {t('lock.tapToUnlock')}
           </Text>
+          <Pressable style={styles.lockButton} onPress={openPinFallback}>
+            <Text style={styles.lockButtonText}>Use PIN</Text>
+          </Pressable>
         </View>
       )}
     </View>

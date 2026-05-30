@@ -173,6 +173,11 @@ export default function SettingsScreen() {
 
   const handleLocalToggle = async (value: boolean) => {
     if (value) {
+      if (biometricCap.status !== SecurityStatus.AVAILABLE) {
+        Alert.alert('Unavailable', 'Set up biometrics first.');
+        return;
+      }
+
       const result = await biometricService.authenticate('Enable lock');
       if (!result.success) {
         void triggerHapticFeedback.error();
@@ -352,7 +357,7 @@ export default function SettingsScreen() {
           </Button>
         </View>
 
-        {/* Simple Lock Toggle */}
+        {/* Biometric Lock */}
         <View
           style={[
             styles.section,
@@ -360,11 +365,15 @@ export default function SettingsScreen() {
           ]}
         >
           <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            Biometric Lock
+            Use Biometric Lock
+          </Text>
+          <Text style={[styles.helperText, { color: colors.subtext }]}>
+            Protect the app when it returns from the background.
           </Text>
           <Switch
             value={biometricEnabledLocal}
             onValueChange={handleLocalToggle}
+            disabled={biometricCap.status !== SecurityStatus.AVAILABLE}
           />
         </View>
 
@@ -474,3 +483,4 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
 });
+
