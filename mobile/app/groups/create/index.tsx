@@ -1,11 +1,5 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-} from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -57,6 +51,7 @@ export default function CreateGroupStep1() {
           error={nameError}
           maxLength={MAX_NAME}
         />
+        <Text style={styles.charCount}>{name.length}/{MAX_NAME}</Text>
 
         <TextInput
           label="Description (optional)"

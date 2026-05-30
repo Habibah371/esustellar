@@ -37,6 +37,11 @@ import {
   loadLanguage,
 } from '../../constants/i18n';
 import { useTheme } from '../../context/ThemeContext';
+import {
+  loadHapticsPreference,
+  setHapticsEnabled as persistHapticsEnabled,
+  triggerHapticFeedback,
+} from '../../services/haptics';
 
 const BIOMETRIC_LOCK_KEY = 'biometricLockEnabled';
 const WALLET_ADDRESS =
@@ -65,6 +70,7 @@ export default function SettingsScreen() {
   const [pinLockoutRemainingMs, setPinLockoutRemainingMs] = useState(0);
 
   const [language, setLanguage] = useState(getLanguage());
+  const [hapticsEnabled, setHapticsEnabledState] = useState(true);
   const [authenticating, setAuthenticating] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -75,13 +81,14 @@ export default function SettingsScreen() {
     let active = true;
 
     void (async () => {
-      const [cap, prefs, pinStatus, storedLang, storedToggle] =
+      const [cap, prefs, pinStatus, storedLang, storedToggle, storedHaptics] =
         await Promise.all([
           biometricService.getCapability(),
           getSecurityPreferences(),
           pinService.getStatus(),
           loadLanguage(),
           AsyncStorage.getItem(BIOMETRIC_LOCK_KEY),
+          loadHapticsPreference(),
         ]);
 
       if (!active) return;
@@ -92,6 +99,7 @@ export default function SettingsScreen() {
       setPinLockoutRemainingMs(pinStatus.remainingLockoutMs);
       setLanguage(storedLang);
       setBiometricEnabledLocal(storedToggle === 'true');
+      setHapticsEnabledState(storedHaptics);
       setLoading(false);
     })();
 
@@ -107,7 +115,7 @@ export default function SettingsScreen() {
   const supportedLabel = useMemo(() => {
     if (
       biometricCap.supportedTypes.length === 0 ||
-      biometricCap.supportedTypes.includes(BiometricType.NONE)
+      biometricCap.supportedTypes.some((type) => type === BiometricType.NONE)
     ) {
       return 'Unavailable';
     }
@@ -132,6 +140,7 @@ export default function SettingsScreen() {
 
   const handleBiometricToggle = async () => {
     if (biometricCap.status !== SecurityStatus.AVAILABLE) {
+      void triggerHapticFeedback.warning();
       Alert.alert('Unavailable', 'Set up biometrics first.');
       return;
     }
@@ -147,6 +156,7 @@ export default function SettingsScreen() {
     setAuthenticating(false);
 
     if (!result.success) {
+      void triggerHapticFeedback.error();
       setMessage(result.error ?? 'Failed');
       return;
     }
@@ -155,6 +165,7 @@ export default function SettingsScreen() {
       biometricEnabled: !securityPreferences.biometricEnabled,
     });
 
+    void triggerHapticFeedback.success();
     setSecurityPreferences(next);
   };
 
@@ -163,11 +174,24 @@ export default function SettingsScreen() {
   const handleLocalToggle = async (value: boolean) => {
     if (value) {
       const result = await biometricService.authenticate('Enable lock');
-      if (!result.success) return;
+      if (!result.success) {
+        void triggerHapticFeedback.error();
+        return;
+      }
     }
 
     setBiometricEnabledLocal(value);
     await AsyncStorage.setItem(BIOMETRIC_LOCK_KEY, value ? 'true' : 'false');
+    void triggerHapticFeedback.selection();
+  };
+
+  const handleHapticsToggle = async (value: boolean) => {
+    await persistHapticsEnabled(value);
+    setHapticsEnabledState(value);
+
+    if (value) {
+      void triggerHapticFeedback.selection();
+    }
   };
 
   // ── PIN ───────────────────────────────────────────
@@ -182,6 +206,7 @@ export default function SettingsScreen() {
           await pinService.removePin();
           const next = await saveSecurityPreferences({ pinEnabled: false });
 
+          void triggerHapticFeedback.success();
           setSecurityPreferences(next);
           setPinSet(false);
         },
@@ -194,8 +219,10 @@ export default function SettingsScreen() {
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(WALLET_ADDRESS);
+      void triggerHapticFeedback.success();
       setMessage('Copied');
     } catch {
+      void triggerHapticFeedback.error();
       setMessage('Failed to copy');
     }
   };
@@ -288,6 +315,22 @@ export default function SettingsScreen() {
           <Text style={[styles.helperText, { color: colors.subtext }]}>
             Active mode: {resolvedColorScheme}
           </Text>
+        </View>
+
+        {/* Haptics */}
+        <View
+          style={[
+            styles.section,
+            { backgroundColor: colors.card, borderColor: colors.border },
+          ]}
+        >
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            {t('settings.haptics')}
+          </Text>
+          <Text style={[styles.helperText, { color: colors.subtext }]}>
+            {t('settings.hapticsDescription')}
+          </Text>
+          <Switch value={hapticsEnabled} onValueChange={handleHapticsToggle} />
         </View>
 
         {/* Biometrics */}

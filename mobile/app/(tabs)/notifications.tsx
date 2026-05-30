@@ -1,21 +1,33 @@
 import React, { useState, useMemo } from 'react';
-import { Alert, SafeAreaView, ScrollView, StyleSheet, Text, View, RefreshControl } from 'react-native';
+import {
+  Alert,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  RefreshControl,
+} from 'react-native';
+import { useTranslation } from 'react-i18next';
 import Button from '../../components/ui/Button';
-import { scheduleLocalNotification } from '../../services/notifications/notificationService';
 import { useTheme } from '../../context/ThemeContext';
-import { useRefresh } from '../../hooks/useRefresh';
 import { useInvalidateNotifications } from '../../hooks/useNotifications';
-import { logger } from '../../utils/logger';
+import { useRefresh } from '../../hooks/useRefresh';
+import { scheduleLocalNotification } from '../../services/notifications/notificationService';
+import { logger } from '../../services/logger';
 
 export default function NotificationsScreen() {
   const [scheduling, setScheduling] = useState(false);
+  const { t } = useTranslation();
   const { colors } = useTheme();
   const invalidateNotifications = useInvalidateNotifications();
 
-  const fetchData = useMemo(() => async () => {
-    logger.info('NotificationsScreen', 'Refreshing notifications');
-    await invalidateNotifications();
-  }, [invalidateNotifications]);
+  const fetchData = useMemo(
+    () => async () => {
+      logger.info('NotificationsScreen', 'Refreshing notifications');
+      await invalidateNotifications();
+    },
+    [invalidateNotifications],
+  );
 
   const { refreshing, onRefresh } = useRefresh(fetchData);
 
@@ -24,15 +36,25 @@ export default function NotificationsScreen() {
     logger.info('NotificationsScreen', 'Scheduling group notification');
     try {
       await scheduleLocalNotification({
-        body: 'Tap to open the group detail screen.',
+        body: t('notifications.contributionDueBody'),
         data: { params: { groupId: '1' }, screen: 'groups/detail' },
         seconds: 2,
-        title: 'Contribution due',
+        title: t('notifications.contributionDueTitle'),
       });
-      Alert.alert('Notification scheduled', 'A test notification will appear in 2 seconds.');
+      Alert.alert(
+        t('notifications.scheduledTitle'),
+        t('notifications.scheduledBody'),
+      );
     } catch (err) {
-      logger.error('NotificationsScreen', 'Failed to schedule notification', err);
-      Alert.alert('Unable to schedule notification', 'Please try again.');
+      logger.error(
+        'NotificationsScreen',
+        'Failed to schedule notification',
+        err,
+      );
+      Alert.alert(
+        t('notifications.unableToScheduleTitle'),
+        t('notifications.unableToScheduleBody'),
+      );
     } finally {
       setScheduling(false);
     }
@@ -43,22 +65,34 @@ export default function NotificationsScreen() {
     logger.info('NotificationsScreen', 'Scheduling fallback notification');
     try {
       await scheduleLocalNotification({
-        body: 'Tap to test the home-screen fallback route.',
+        body: t('notifications.unknownDestinationBody'),
         data: { screen: 'unsupported-screen' },
         seconds: 2,
-        title: 'Unknown destination',
+        title: t('notifications.unknownDestinationTitle'),
       });
-      Alert.alert('Fallback notification scheduled', 'A test notification with an unknown route will appear in 2 seconds.');
+      Alert.alert(
+        t('notifications.fallbackScheduledTitle'),
+        t('notifications.fallbackScheduledBody'),
+      );
     } catch (err) {
-      logger.error('NotificationsScreen', 'Failed to schedule fallback notification', err);
-      Alert.alert('Unable to schedule notification', 'Please try again.');
+      logger.error(
+        'NotificationsScreen',
+        'Failed to schedule fallback notification',
+        err,
+      );
+      Alert.alert(
+        t('notifications.unableToScheduleTitle'),
+        t('notifications.unableToScheduleBody'),
+      );
     } finally {
       setScheduling(false);
     }
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+    >
       <ScrollView
         contentContainerStyle={styles.content}
         refreshControl={
@@ -70,15 +104,26 @@ export default function NotificationsScreen() {
           />
         }
       >
-        <Text style={[styles.title, { color: colors.text }]}>Notifications</Text>
-        <Text style={[styles.subtitle, { color: colors.subtext }]}>
-          Trigger a local notification to verify foreground banners and tap navigation.
+        <Text style={[styles.title, { color: colors.text }]}>
+          {t('notifications.title')}
         </Text>
-        <Button disabled={scheduling} onPress={scheduleGroupNotification} style={styles.button}>
-          Schedule Group Detail Notification
+        <Text style={[styles.subtitle, { color: colors.subtext }]}>
+          {t('notifications.subtitle')}
+        </Text>
+        <Button
+          disabled={scheduling}
+          onPress={scheduleGroupNotification}
+          style={styles.button}
+        >
+          {t('notifications.scheduleGroupDetail')}
         </Button>
-        <Button disabled={scheduling} onPress={scheduleUnknownRouteNotification} style={styles.button} variant="outline">
-          Schedule Fallback Notification
+        <Button
+          disabled={scheduling}
+          onPress={scheduleUnknownRouteNotification}
+          style={styles.button}
+          variant="outline"
+        >
+          {t('notifications.scheduleFallback')}
         </Button>
       </ScrollView>
     </SafeAreaView>

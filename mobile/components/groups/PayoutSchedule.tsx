@@ -3,6 +3,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { formatDate } from '../../utils/formatDate';
 
 type RoundStatus = 'upcoming' | 'completed' | 'current';
 
@@ -20,11 +21,6 @@ interface PayoutScheduleProps {
 export function PayoutSchedule({ rounds }: PayoutScheduleProps) {
   const truncateAddress = (address: string) => {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
   const getStatusIcon = (status: RoundStatus) => {
@@ -94,7 +90,7 @@ export function PayoutSchedule({ rounds }: PayoutScheduleProps) {
               styles.dateText,
               round.status === 'current' && styles.currentText
             ]}>
-              {formatDate(round.date)}
+              {formatDate(round.date, { month: 'short', day: 'numeric', year: 'numeric' })}
             </Text>
           </View>
           

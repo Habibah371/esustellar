@@ -1,16 +1,13 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-} from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { TextInput } from '../../../components/ui/TextInput';
 import Button from '../../../components/ui/Button';
+
+const MIN_SIZE = 2;
+const MAX_SIZE = 20;
 
 export default function CreateGroupStep2() {
   const router = useRouter();
@@ -20,7 +17,8 @@ export default function CreateGroupStep2() {
   const [contribution, setContribution] = useState('');
   const [contributionError, setContributionError] = useState('');
 
-  const totalPool = size * (parseFloat(contribution) || 0);
+  const parsedAmount = parseFloat(contribution);
+  const totalPool = size * (isNaN(parsedAmount) ? 0 : parsedAmount);
 
   const handleNext = () => {
     const amount = parseFloat(contribution);
@@ -54,18 +52,20 @@ export default function CreateGroupStep2() {
       <Text style={styles.step}>Step 2 of 3</Text>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Text style={styles.label}>Group Size</Text>
+        <Text style={styles.label}>Group Size ({MIN_SIZE}–{MAX_SIZE} members)</Text>
         <View style={styles.picker}>
           <TouchableOpacity
-            onPress={() => setSize((s) => Math.max(2, s - 1))}
+            onPress={() => setSize((s) => Math.max(MIN_SIZE, s - 1))}
             style={styles.pickerBtn}
+            accessibilityLabel="Decrease group size"
           >
             <Text style={styles.pickerBtnText}>−</Text>
           </TouchableOpacity>
           <Text style={styles.pickerValue}>{size} members</Text>
           <TouchableOpacity
-            onPress={() => setSize((s) => Math.min(20, s + 1))}
+            onPress={() => setSize((s) => Math.min(MAX_SIZE, s + 1))}
             style={styles.pickerBtn}
+            accessibilityLabel="Increase group size"
           >
             <Text style={styles.pickerBtnText}>+</Text>
           </TouchableOpacity>

@@ -84,7 +84,7 @@ class BackgroundSyncService {
     }
 
     const wallet = useAuthStore.getState().wallet;
-    if (!wallet?.address) {
+    if (!wallet?.publicKey) {
       console.log('[SyncService] No wallet connected, skipping sync');
       return;
     }
@@ -94,15 +94,15 @@ class BackgroundSyncService {
 
     try {
       if (options.syncGroups !== false) {
-        await this.syncGroups(wallet.address);
+        await this.syncGroups(wallet.publicKey);
       }
 
       if (options.syncTransactions !== false) {
-        await this.syncTransactions(wallet.address);
+        await this.syncTransactions(wallet.publicKey);
       }
 
       if (options.syncNotifications !== false) {
-        await this.syncNotifications(wallet.address);
+        await this.syncNotifications(wallet.publicKey);
       }
 
       this.lastSyncTime = Date.now();
@@ -130,11 +130,23 @@ class BackgroundSyncService {
    * Sync transactions data
    */
   private async syncTransactions(userAddress: string) {
-    const result = await transactionsApi.getUserTransactions(userAddress);
-    if (result.success && result.data) {
-      queryClient.setQueryData(['transactions', 'user', userAddress], result);
-      console.log('[SyncService] Transactions synced successfully');
+    const result = await transactionSyncService.syncTransactions(userAddress);
+    
+    if (!result.success) {
+      console.error('[SyncService] Transaction sync failed:', result.error);
+      return;
     }
+
+    const existingData = queryClient.getQueryData<{ data?: Transaction[] }>(
+      queryKeys.transactions.user(userAddress)
+    );
+    
+    queryClient.setQueryData(
+      queryKeys.transactions.user(userAddress),
+      { ...existingData, data: existingData?.data || [] }
+    );
+    
+    console.log('[SyncService] Transactions synced successfully');
   }
 
   /**

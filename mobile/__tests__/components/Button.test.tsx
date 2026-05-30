@@ -22,18 +22,27 @@ describe('Button', () => {
     expect(onPress).not.toHaveBeenCalled();
   });
 
-  it('renders primary variant without error', () => {
+  it('applies primary variant styles', () => {
     const { getByText } = render(<Button variant="primary">Primary</Button>);
-    expect(getByText('Primary')).toBeTruthy();
+    const pressable = getByText('Primary').parent?.parent;
+    expect(pressable?.props.style).toEqual(
+      expect.objectContaining({ backgroundColor: '#6366F1', borderColor: '#6366F1' }),
+    );
   });
 
-  it('renders secondary variant without error', () => {
+  it('applies secondary variant styles', () => {
     const { getByText } = render(<Button variant="secondary">Secondary</Button>);
-    expect(getByText('Secondary')).toBeTruthy();
+    const pressable = getByText('Secondary').parent?.parent;
+    expect(pressable?.props.style).toEqual(
+      expect.objectContaining({ backgroundColor: '#1E293B', borderColor: '#1E293B' }),
+    );
   });
 
-  it('renders outline variant without error', () => {
+  it('applies outline variant styles', () => {
     const { getByText } = render(<Button variant="outline">Outline</Button>);
-    expect(getByText('Outline')).toBeTruthy();
+    const pressable = getByText('Outline').parent?.parent;
+    expect(pressable?.props.style).toEqual(
+      expect.objectContaining({ backgroundColor: 'transparent', borderColor: '#6366F1' }),
+    );
   });
 });

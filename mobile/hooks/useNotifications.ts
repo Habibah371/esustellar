@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { notificationsApi } from '../services/api/notificationsApi';
 import { queryKeys } from '../services/queryClient';
@@ -12,5 +13,8 @@ export function useUserNotifications(userAddress: string) {
 
 export function useInvalidateNotifications() {
   const queryClient = useQueryClient();
-  return () => queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all });
+  return useCallback(
+    () => queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all }),
+    [queryClient],
+  );
 }

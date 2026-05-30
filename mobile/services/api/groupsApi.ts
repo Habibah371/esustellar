@@ -3,6 +3,8 @@
  * Handles REST API calls for group-related operations
  */
 
+import { logger } from '../logger';
+
 export interface Group {
   id: string;
   name: string;
@@ -37,7 +39,7 @@ class GroupsApiService {
    */
   async getUserGroups(userAddress: string): Promise<ApiResponse<Group[]>> {
     try {
-      console.log(`Fetching groups for user: ${userAddress}`);
+      logger.debug('GroupsApi', 'Fetching user groups');
       
       // Mock API call - replace with actual implementation
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -76,7 +78,7 @@ class GroupsApiService {
         data: mockGroups,
       };
     } catch (error) {
-      console.error('Failed to fetch user groups:', error);
+      logger.error('GroupsApi', 'Failed to fetch user groups', error);
       return {
         success: false,
         error: 'Failed to fetch groups',
@@ -89,7 +91,7 @@ class GroupsApiService {
    */
   async getGroupById(groupId: string): Promise<ApiResponse<Group>> {
     try {
-      console.log(`Fetching group details for: ${groupId}`);
+      logger.debug('GroupsApi', 'Fetching group details', { groupId });
       
       // Mock API call - replace with actual implementation
       await new Promise(resolve => setTimeout(resolve, 800));
@@ -113,7 +115,7 @@ class GroupsApiService {
         data: mockGroup,
       };
     } catch (error) {
-      console.error('Failed to fetch group details:', error);
+      logger.error('GroupsApi', 'Failed to fetch group details', error);
       return {
         success: false,
         error: 'Failed to fetch group details',

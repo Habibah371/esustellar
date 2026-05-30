@@ -3,7 +3,7 @@ import { ScrollView, View, Text, StyleSheet, RefreshControl } from 'react-native
 import { useTheme } from '../../context/ThemeContext';
 import { useRefresh } from '../../hooks/useRefresh';
 import { useInvalidateGroups } from '../../hooks/useGroups';
-import { logger } from '../../utils/logger';
+import { logger } from '../../services/logger';
 
 export default function GroupsScreen() {
   const { colors } = useTheme();

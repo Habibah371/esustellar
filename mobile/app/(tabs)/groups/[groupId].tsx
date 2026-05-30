@@ -1,12 +1,13 @@
 'use client';
 
-import React from 'react';
-import { SafeAreaView, ScrollView, View, Text, Pressable, StyleSheet, Alert, FlatList } from 'react-native';
+import React, { useCallback } from 'react';
+import { SafeAreaView, View, Text, Pressable, StyleSheet, Alert, FlatList, RefreshControl } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import { Badge } from '../../../components/ui/Badge';
 import { MemberAvatarStack } from '../../../components/groups/MemberAvatarStack';
+import { useRefresh } from '../../../hooks/useRefresh';
 import { formatXLM } from '../../../utils/stellar';
 
 type Member = {
@@ -129,6 +130,10 @@ export default function GroupDetailPage() {
   const params = useLocalSearchParams<{ groupId?: string }>();
   const groupId = params.groupId ?? '';
   const group = MOCK_GROUPS.find((item) => item.id === groupId) || null;
+  const refreshGroup = useCallback(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 600));
+  }, []);
+  const { refreshing, onRefresh } = useRefresh(refreshGroup);
 
   const sections: Section[] = group
     ? [{ key: 'header' }, { key: 'members' }, { key: 'overview' }, { key: 'groupId' }]
@@ -190,6 +195,14 @@ export default function GroupDetailPage() {
         keyExtractor={(item) => item.key}
         renderItem={renderItem}
         contentContainerStyle={styles.content}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#0F172A"
+            colors={['#0F172A']}
+          />
+        }
       />
     </SafeAreaView>
   );

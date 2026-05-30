@@ -1,7 +1,7 @@
 import * as Localization from 'expo-localization';
 
 /**
- * Returns the current device locale (BCP-47), e.g. 'fr-FR', 'en-US'.
+ * Returns the current device locale (BCP-47), e.g. 'fr-FR', 'en-GB'.
  * Falls back to 'en' when unavailable.
  */
 const getLocale = (): string => Localization.locale ?? 'en';

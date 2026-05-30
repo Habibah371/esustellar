@@ -15,8 +15,11 @@ describe('GroupCard', () => {
   });
 
   it('renders status badge', () => {
-    const { getByText } = render(<GroupCard {...baseProps} />);
+    const { getByText, rerender } = render(<GroupCard {...baseProps} />);
     expect(getByText('active')).toBeTruthy();
+
+    rerender(<GroupCard {...baseProps} status="pending" />);
+    expect(getByText('pending')).toBeTruthy();
   });
 
   it('renders contribution amount', () => {

@@ -1,17 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
   ScrollView,
   StyleSheet,
-  Alert,
   TouchableOpacity,
   ActivityIndicator,
   TextInput as RNTextInput,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 
 const INVITE_CODE_REGEX = /^[A-Z0-9]{4,12}$/;
 
@@ -25,15 +24,16 @@ interface GroupPreview {
 
 export default function JoinGroupScreen() {
   const router = useRouter();
-  const [inviteCode, setInviteCode] = useState('');
+  const [inviteCode, setInviteCode] = useState("");
   const [loading, setLoading] = useState(false);
+  const [joining, setJoining] = useState(false);
   const [groupPreview, setGroupPreview] = useState<GroupPreview | null>(null);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleCodeChange = (value: string) => {
-    const upper = value.toUpperCase().replace(/[^A-Z0-9-]/g, '');
+    const upper = value.toUpperCase().replace(/[^A-Z0-9-]/g, "");
     setInviteCode(upper);
-    setError('');
+    setError("");
     if (groupPreview) setGroupPreview(null);
   };
 
@@ -41,29 +41,29 @@ export default function JoinGroupScreen() {
     const code = inviteCode.trim();
 
     if (!code) {
-      setError('Invite code is required');
+      setError("Invite code is required");
       return;
     }
 
-    if (!INVITE_CODE_REGEX.test(code.replace(/-/g, ''))) {
-      setError('Invalid invite code format');
+    if (!INVITE_CODE_REGEX.test(code.replace(/-/g, ""))) {
+      setError("Invalid invite code format");
       return;
     }
 
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
-      // Show group preview — in a real app this would validate via API
+      // Validate code and show group preview
       setGroupPreview({
-        groupId: 'mock-id',
-        groupName: 'Savings Circle',
+        groupId: "mock-id",
+        groupName: "Savings Circle",
         memberCount: 4,
         maxMembers: 10,
         contributionAmount: 100,
       });
     } catch {
-      setError('Failed to validate invite code');
+      setError("Failed to validate invite code");
     } finally {
       setLoading(false);
     }
@@ -71,17 +71,14 @@ export default function JoinGroupScreen() {
 
   const handleConfirmJoin = async () => {
     if (!groupPreview) return;
-
-    setLoading(true);
+    setJoining(true);
     try {
-      console.log('Joining group with code:', inviteCode);
-      Alert.alert('Success!', `You joined "${groupPreview.groupName}"`, [
-        { text: 'View Group', onPress: () => router.replace(`/groups/${groupPreview.groupId}`) },
-      ]);
+      console.log("Joining group with code:", inviteCode);
+      router.replace(`/groups/${groupPreview.groupId}`);
     } catch {
-      setError('Failed to join group');
+      setError("Failed to join group");
     } finally {
-      setLoading(false);
+      setJoining(false);
     }
   };
 
@@ -115,11 +112,11 @@ export default function JoinGroupScreen() {
         )}
 
         <TouchableOpacity
-          style={[styles.joinButton, loading && styles.joinButtonDisabled]}
+          style={[styles.joinButton, loading && styles.disabled]}
           onPress={handleJoin}
           disabled={loading}
         >
-          {loading && !groupPreview ? (
+          {loading ? (
             <ActivityIndicator color="#fff" />
           ) : (
             <Text style={styles.joinButtonText}>Join</Text>
@@ -141,11 +138,11 @@ export default function JoinGroupScreen() {
             </View>
 
             <TouchableOpacity
-              style={[styles.confirmButton, loading && styles.joinButtonDisabled]}
+              style={[styles.confirmButton, joining && styles.disabled]}
               onPress={handleConfirmJoin}
-              disabled={loading}
+              disabled={joining}
             >
-              {loading ? (
+              {joining ? (
                 <ActivityIndicator color="#fff" />
               ) : (
                 <Text style={styles.joinButtonText}>Confirm Join</Text>
@@ -159,11 +156,11 @@ export default function JoinGroupScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0F172A' },
+  container: { flex: 1, backgroundColor: "#0F172A" },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
@@ -171,59 +168,54 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#1E293B',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#1E293B",
+    justifyContent: "center",
+    alignItems: "center",
   },
-  headerTitle: { fontSize: 18, fontWeight: '600', color: '#fff' },
+  headerTitle: { fontSize: 18, fontWeight: "600", color: "#fff" },
   content: { padding: 16, paddingBottom: 40 },
-  label: { fontSize: 14, color: '#94A3B8', marginBottom: 8 },
+  label: { fontSize: 14, color: "#94A3B8", marginBottom: 8 },
   input: {
-    backgroundColor: '#1E293B',
+    backgroundColor: "#1E293B",
     borderRadius: 10,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
     letterSpacing: 2,
     marginBottom: 12,
   },
   errorBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
-    backgroundColor: '#1E293B',
+    backgroundColor: "#1E293B",
     borderRadius: 8,
     padding: 10,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#EF4444',
+    borderColor: "#EF4444",
   },
-  errorText: { color: '#EF4444', fontSize: 13, flex: 1 },
+  errorText: { color: "#EF4444", fontSize: 13, flex: 1 },
   joinButton: {
-    backgroundColor: '#6366F1',
+    backgroundColor: "#6366F1",
     borderRadius: 12,
     paddingVertical: 14,
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 24,
   },
-  joinButtonDisabled: { opacity: 0.5 },
-  joinButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  previewCard: {
-    backgroundColor: '#1E293B',
-    borderRadius: 12,
-    padding: 20,
-    gap: 12,
-  },
-  previewTitle: { fontSize: 18, fontWeight: '700', color: '#fff', marginBottom: 4 },
-  previewRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  previewLabel: { fontSize: 14, color: '#64748B' },
-  previewValue: { fontSize: 14, color: '#fff', fontWeight: '500' },
+  disabled: { opacity: 0.5 },
+  joinButtonText: { color: "#fff", fontSize: 16, fontWeight: "600" },
+  previewCard: { backgroundColor: "#1E293B", borderRadius: 12, padding: 20, gap: 12 },
+  previewTitle: { fontSize: 18, fontWeight: "700", color: "#fff", marginBottom: 4 },
+  previewRow: { flexDirection: "row", justifyContent: "space-between" },
+  previewLabel: { fontSize: 14, color: "#64748B" },
+  previewValue: { fontSize: 14, color: "#fff", fontWeight: "500" },
   confirmButton: {
-    backgroundColor: '#10B981',
+    backgroundColor: "#10B981",
     borderRadius: 12,
     paddingVertical: 14,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 8,
   },
 });

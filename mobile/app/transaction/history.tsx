@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { TransactionItem, TransactionType } from '../../components/transactions/TransactionItem';
+import { EmptyState } from '../../components/ui';
 import { useRefresh } from '../../hooks/useRefresh';
 
 type TabKey = 'All' | 'Contributions' | 'Payouts';
@@ -106,6 +107,13 @@ export default function TransactionHistoryScreen() {
     return typeFilter ? data.filter((t) => t.type === typeFilter) : data;
   }, [activeTab, data]);
 
+  const refreshTransactions = useCallback(async () => {
+    // Replace with real fetch
+    await new Promise((r) => setTimeout(r, 800));
+    setData([...MOCK_TRANSACTIONS]);
+  }, []);
+  const { refreshing, onRefresh } = useRefresh(refreshTransactions);
+
   const renderItem = useCallback(
     ({ item }: ListRenderItemInfo<Transaction>) => (
       <TransactionItem
@@ -140,9 +148,12 @@ export default function TransactionHistoryScreen() {
         contentContainerStyle={styles.list}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#6366F1" />}
         ListEmptyComponent={
-          <View style={styles.empty}>
-            <Text style={styles.emptyText}>No {activeTab.toLowerCase()} to show.</Text>
-          </View>
+          <EmptyState
+            tone="dark"
+            illustration="transactions"
+            title={activeTab === 'All' ? 'No transactions yet' : `No ${activeTab.toLowerCase()} yet`}
+            message="Transactions will appear here once you have activity."
+          />
         }
       />
     </SafeAreaView>
@@ -188,6 +199,4 @@ const styles = StyleSheet.create({
     backgroundColor: '#6366F1',
   },
   list: { paddingHorizontal: 16, paddingTop: 8 },
-  empty: { marginTop: 48, alignItems: 'center' },
-  emptyText: { color: '#64748B', fontSize: 15 },
 });

@@ -2,7 +2,7 @@
 
 // Mock AsyncStorage
 jest.mock('@react-native-async-storage/async-storage', () =>
-  require('@react-native-async-storage/async-storage/jest/async-storage-mock')
+  require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
 );
 
 // Mock expo-crypto
@@ -18,13 +18,21 @@ jest.mock('expo-local-authentication', () => ({
   authenticateAsync: jest.fn(() => Promise.resolve({ success: true })),
 }));
 
+// Mock expo-haptics
+jest.mock('expo-haptics', () => require('./__mocks__/expo-haptics.js'));
+
 // Mock expo-image
 jest.mock('expo-image', () => {
   const React = require('react');
   const { Image } = require('react-native');
   return {
     Image: React.forwardRef((props, ref) => {
-      return React.createElement(Image, { ...props, ref, accessibilityRole: 'image', accessible: true });
+      return React.createElement(Image, {
+        ...props,
+        ref,
+        accessibilityRole: 'image',
+        accessible: true,
+      });
     }),
   };
 });

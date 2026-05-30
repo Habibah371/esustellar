@@ -39,16 +39,47 @@ function requireEnv(key: string): string {
   return value;
 }
 
+function validateUrl(value: string, key: string): string {
+  try {
+    // eslint-disable-next-line no-new
+    new URL(value);
+    return value;
+  } catch {
+    throw new Error(`[config] ${key} must be a valid URL. Received: "${value}"`);
+  }
+}
+
+function validateNetwork(value: string): string {
+  if (value === 'testnet' || value === 'mainnet') {
+    return value;
+  }
+
+  throw new Error(
+    `[config] EXPO_PUBLIC_STELLAR_NETWORK must be "testnet" or "mainnet". Received: "${value}"`,
+  );
+}
+
 function parseEnvironment(raw: string | undefined): Environment {
   if (raw === 'staging' || raw === 'production') return raw;
+  if (raw === 'development') return raw;
   return 'development';
 }
 
+export function resolveEnvironment(
+  expoPublicEnv: string | undefined,
+  nodeEnv: string | undefined,
+): Environment {
+  return parseEnvironment(expoPublicEnv ?? nodeEnv);
+}
+
 const config: AppConfig = {
-  env: parseEnvironment(process.env.EXPO_PUBLIC_ENV),
-  apiUrl: requireEnv('EXPO_PUBLIC_API_URL'),
-  stellarNetwork: requireEnv('EXPO_PUBLIC_STELLAR_NETWORK'),
-  stellarHorizonUrl: requireEnv('EXPO_PUBLIC_STELLAR_HORIZON_URL'),
+  env: resolveEnvironment(process.env.EXPO_PUBLIC_ENV, process.env.NODE_ENV),
+  apiUrl: validateUrl(requireEnv('EXPO_PUBLIC_API_URL'), 'EXPO_PUBLIC_API_URL'),
+  stellarNetwork: validateNetwork(requireEnv('EXPO_PUBLIC_STELLAR_NETWORK')),
+  stellarHorizonUrl: validateUrl(
+    requireEnv('EXPO_PUBLIC_STELLAR_HORIZON_URL'),
+    'EXPO_PUBLIC_STELLAR_HORIZON_URL',
+  ),
   stellarNetworkPassphrase: requireEnv('EXPO_PUBLIC_STELLAR_NETWORK_PASSPHRASE'),
 };
 

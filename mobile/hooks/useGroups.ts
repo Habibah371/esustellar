@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { groupsApi } from '../services/api/groupsApi';
 import { queryKeys } from '../services/queryClient';
@@ -20,5 +21,8 @@ export function useGroupById(groupId: string) {
 
 export function useInvalidateGroups() {
   const queryClient = useQueryClient();
-  return () => queryClient.invalidateQueries({ queryKey: queryKeys.groups.all });
+  return useCallback(
+    () => queryClient.invalidateQueries({ queryKey: queryKeys.groups.all }),
+    [queryClient],
+  );
 }

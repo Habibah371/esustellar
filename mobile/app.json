@@ -19,11 +19,13 @@
       "adaptiveIcon": {
         "backgroundColor": "#0F172A"
       },
-      "jsEngine": "hermes"
+      "jsEngine": "hermes",
+      "useNextNotificationsApi": true
     },
     "plugins": [
       "expo-router",
-      "expo-localization"
+      "expo-localization",
+      "expo-notifications"
     ],
     "scheme": "esustellar"
   }

@@ -28,6 +28,7 @@ export const queryKeys = {
   },
   transactions: {
     all: ['transactions'] as const,
+    user: (address: string) => ['transactions', 'user', address] as const,
     group: (groupId: string) => ['transactions', groupId] as const,
   },
   notifications: {

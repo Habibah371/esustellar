@@ -1,6 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';
+import { logger } from './logger';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -12,7 +13,7 @@ Notifications.setNotificationHandler({
 
 export async function registerForPushNotificationsAsync(): Promise<string | null> {
   if (!Device.isDevice) {
-    console.warn('[notifications] Push tokens require a physical device');
+    logger.warn('Notifications', 'Push tokens require a physical device');
     return null;
   }
 
@@ -23,7 +24,7 @@ export async function registerForPushNotificationsAsync(): Promise<string | null
       : (await Notifications.requestPermissionsAsync()).status;
 
   if (finalStatus !== 'granted') {
-    console.warn('[notifications] Permission not granted');
+    logger.warn('Notifications', 'Permission not granted');
     return null;
   }
 
@@ -35,7 +36,7 @@ export async function registerForPushNotificationsAsync(): Promise<string | null
   }
 
   const token = (await Notifications.getExpoPushTokenAsync()).data;
-  console.log('[notifications] Push token:', token);
+  logger.info('Notifications', 'Push token acquired');
   return token;
 }
 

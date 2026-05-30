@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -6,28 +6,33 @@ import {
   Text,
   Pressable,
   StyleSheet,
-  Switch,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { Avatar } from '../../../components/ui/Avatar';
-import { Button } from '../../../components/ui/Button';
+import Button from '../../../components/ui/Button';
 import { DisconnectModal } from '../../../components/wallet/DisconnectModal';
 import { useAuthStore } from '../../../store/authStore';
+import { useTheme } from '../../../context/ThemeContext';
 
-// Truncate wallet address
 function truncateAddress(address: string): string {
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
 }
 
 const ProfileScreen = React.memo(() => {
   const router = useRouter();
-  const wallet = useAuthStore((s) => s.wallet);
-  const logout = useAuthStore((s) => s.logout);
+  const { t } = useTranslation();
+  const wallet = useAuthStore((state) => state.wallet);
+  const logout = useAuthStore((state) => state.logout);
   const [disconnectModalVisible, setDisconnectModalVisible] = useState(false);
+  const { colors } = useTheme();
 
-  const displayName = 'EsuStellar User';
+  const displayName = t('home.defaultUser');
   const walletAddress = wallet?.publicKey || 'GABCD1234EFGH5678IJKL9012MNOP';
-  const truncatedAddress = useMemo(() => truncateAddress(walletAddress), [walletAddress]);
+  const truncatedAddress = useMemo(
+    () => truncateAddress(walletAddress),
+    [walletAddress],
+  );
 
   const handleDisconnect = () => {
     logout();
@@ -37,28 +42,29 @@ const ProfileScreen = React.memo(() => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
-        {/* Header: Avatar, Name, Address */}
         <View style={styles.header}>
           <Avatar name={displayName} size="lg" />
           <Text style={styles.displayName}>{displayName}</Text>
           <Text style={styles.walletAddress}>{truncatedAddress}</Text>
         </View>
 
-        {/* Action Button */}
         <View style={styles.section}>
-          <Button variant="outline" size="lg" onPress={() => router.push('/profile/edit')}>
-            Edit Profile
+          <Button
+            variant="outline"
+            size="lg"
+            onPress={() => router.push('/profile/edit')}
+          >
+            {t('profile.editProfile')}
           </Button>
         </View>
 
-        {/* Settings Rows */}
         <View style={styles.section}>
           <Pressable
             style={styles.settingsRow}
             onPress={() => router.push('/profile/settings')}
             accessibilityRole="button"
           >
-            <Text style={styles.settingsLabel}>Settings</Text>
+            <Text style={styles.settingsLabel}>{t('profile.settings')}</Text>
             <Text style={styles.chevron}>›</Text>
           </Pressable>
 
@@ -70,7 +76,7 @@ const ProfileScreen = React.memo(() => {
             accessibilityRole="button"
           >
             <Text style={[styles.settingsLabel, { color: '#EF4444' }]}>
-              Disconnect Wallet
+              {t('profile.disconnectWallet')}
             </Text>
             <Text style={[styles.chevron, { color: '#EF4444' }]}>›</Text>
           </Pressable>
@@ -93,7 +99,7 @@ export default ProfileScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0F172A',
+    backgroundColor: colors.background,
   },
   content: {
     padding: 24,
@@ -107,13 +113,13 @@ const styles = StyleSheet.create({
   displayName: {
     fontSize: 22,
     fontWeight: '800',
-    color: '#F8FAFC',
+    color: colors.text,
     marginTop: 16,
     marginBottom: 4,
   },
   walletAddress: {
     fontSize: 15,
-    color: '#94A3B8',
+    color: colors.subtext,
   },
   section: {
     width: '100%',
@@ -125,22 +131,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 16,
     paddingHorizontal: 4,
-    backgroundColor: '#1E293B',
+    backgroundColor: colors.card,
     borderRadius: 12,
   },
   settingsLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#F8FAFC',
+    color: colors.text,
   },
   chevron: {
     fontSize: 24,
-    color: '#64748B',
+    color: colors.subtext,
     lineHeight: 24,
   },
   separator: {
     height: 1,
-    backgroundColor: '#334155',
+    backgroundColor: colors.border,
     marginVertical: 4,
   },
   spacer: {

@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { QueryClientProvider } from '@tanstack/react-query';
 import * as Notifications from 'expo-notifications';
 import { Slot, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -10,15 +11,17 @@ import {
   Text,
   View,
 } from 'react-native';
-import { useTranslation } from 'react-i18next';
-import { NotificationBanner } from '../components/notifications/NotificationBanner';
+import { I18nextProvider, useTranslation } from 'react-i18next';
 import { AnnouncementBanner } from '../components/announcements/AnnouncementBanner';
+import { NotificationBanner } from '../components/notifications/NotificationBanner';
+import { loadLanguage } from '../constants/i18n';
 import { ThemeProvider, useTheme } from '../context/ThemeContext';
 import { useAutoLock } from '../hooks/useAutoLock';
-import { loadLanguage } from '../constants/i18n';
+import i18n from '../i18n';
 import { getRouteFromNotificationData } from '../services/notifications/notificationRouting';
+import { queryClient } from '../services/queryClient';
 import { biometricService } from '../services/security';
-import { logger } from '../utils/logger';
+import { logger } from '../services/logger';
 
 const ONBOARDING_KEY = 'onboardingComplete';
 const BIOMETRIC_LOCK_KEY = 'biometricLockEnabled';
@@ -53,12 +56,14 @@ function RootLayoutContent() {
       return;
     }
 
-    const result = await biometricService.authenticate('Unlock EsuStellar');
+    const result = await biometricService.authenticate(
+      t('lock.biometricPrompt', { appName: t('common.appName') }),
+    );
 
     if (result.success) {
       setLocked(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     const subscription = AppState.addEventListener(
@@ -114,10 +119,10 @@ function RootLayoutContent() {
 
     void initialize();
 
-    initialize();
+    return () => {
+      active = false;
+    };
   }, [router]);
-
-  // ── Notifications ───────────────────────────────────────────────────────
 
   const dismissBanner = useCallback(() => {
     if (bannerTimerRef.current) {
@@ -138,24 +143,27 @@ function RootLayoutContent() {
     [dismissBanner, router],
   );
 
-  const showBanner = useCallback((notification: Notifications.Notification) => {
-    const content = notification.request.content;
+  const showBanner = useCallback(
+    (notification: Notifications.Notification) => {
+      const content = notification.request.content;
 
-    setBanner({
-      body: content.body ?? undefined,
-      data: (content.data ?? {}) as Record<string, unknown>,
-      title: content.title ?? t('tabs.notifications'),
-    });
+      setBanner({
+        body: content.body ?? undefined,
+        data: (content.data ?? {}) as Record<string, unknown>,
+        title: content.title ?? t('tabs.notifications'),
+      });
 
-    if (bannerTimerRef.current) {
-      clearTimeout(bannerTimerRef.current);
-    }
+      if (bannerTimerRef.current) {
+        clearTimeout(bannerTimerRef.current);
+      }
 
-    bannerTimerRef.current = setTimeout(() => {
-      setBanner(null);
-      bannerTimerRef.current = null;
-    }, 3000);
-  }, []);
+      bannerTimerRef.current = setTimeout(() => {
+        setBanner(null);
+        bannerTimerRef.current = null;
+      }, 3000);
+    },
+    [t],
+  );
 
   useEffect(() => {
     const receivedSubscription = Notifications.addNotificationReceivedListener(
@@ -209,13 +217,13 @@ function RootLayoutContent() {
 
       {masked && (
         <View style={styles.overlay} pointerEvents="none">
-          <Text style={styles.overlayText}>EsuStellar</Text>
+          <Text style={styles.overlayText}>{t('common.appName')}</Text>
         </View>
       )}
 
       {locked && (
         <View style={styles.overlay}>
-          <Text style={styles.overlayText}>EsuStellar</Text>
+          <Text style={styles.overlayText}>{t('common.appName')}</Text>
           <Text style={styles.lockHint} onPress={promptBiometric}>
             {t('lock.tapToUnlock')}
           </Text>
@@ -227,9 +235,13 @@ function RootLayoutContent() {
 
 export default function RootLayout() {
   return (
-    <ThemeProvider>
-      <RootLayoutContent />
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <I18nextProvider i18n={i18n}>
+        <ThemeProvider>
+          <RootLayoutContent />
+        </ThemeProvider>
+      </I18nextProvider>
+    </QueryClientProvider>
   );
 }
 
@@ -244,20 +256,19 @@ const styles = StyleSheet.create({
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#6C63FF',
+    backgroundColor: '#0B1220',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 9999,
   },
   overlayText: {
     color: '#FFFFFF',
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: '700',
-    letterSpacing: 1,
   },
   lockHint: {
-    color: 'rgba(255,255,255,0.75)',
-    fontSize: 14,
-    marginTop: 16,
+    color: '#FFFFFF',
+    fontSize: 16,
+    marginTop: 12,
   },
 });

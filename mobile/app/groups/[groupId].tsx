@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
-import { View, Text, ScrollView, StyleSheet, Alert, TouchableOpacity, Share, SafeAreaView, Pressable } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Alert, TouchableOpacity, Share, SafeAreaView, Pressable, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { MemberAvatarStack } from '../../components/groups/MemberAvatarStack';
@@ -9,6 +9,7 @@ import { SectionHeader } from '../../components/ui/SectionHeader';
 import { Card } from '../../components/ui/Card';
 import { Divider } from '../../components/ui/Divider';
 import { LoadingSkeleton } from '../../components/ui/LoadingSkeleton';
+import { useRefresh } from '../../hooks/useRefresh';
 
 interface Member {
   address: string;
@@ -197,6 +198,12 @@ export default function GroupDetailScreen() {
     }, 1000);
   }, [groupId]);
 
+  const refreshGroup = useCallback(async () => {
+    await new Promise((r) => setTimeout(r, 600));
+    setGroup((current) => (current ? { ...current } : current));
+  }, []);
+  const { refreshing, onRefresh } = useRefresh(refreshGroup);
+
   const handleTabPress = useCallback(
     async (tab: TabKey) => {
       if (tab === activeTab) return;
@@ -256,7 +263,18 @@ export default function GroupDetailScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#6366F1"
+            colors={['#6366F1']}
+          />
+        }
+      >
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>

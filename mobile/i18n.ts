@@ -8,46 +8,78 @@ import en from './locales/en.json';
 import fr from './locales/fr.json';
 import sw from './locales/sw.json';
 
-export const SUPPORTED_LANGUAGES = ['ar', 'en', 'es', 'fr', 'sw'] as const;
+export const SUPPORTED_LANGUAGES = ['ar', 'en', 'fr', 'sw'] as const;
 export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
+export const LANGUAGE_STORAGE_KEY = 'esustellar_app_language';
 
-/** Languages that are written right-to-left. */
-const RTL_LANGUAGES: ReadonlySet<string> = new Set(['ar', 'he', 'fa', 'ur']);
+export const languageOptions: ReadonlyArray<{
+  label: string;
+  value: SupportedLanguage;
+}> = [
+  { label: 'العربية', value: 'ar' },
+  { label: 'English', value: 'en' },
+  { label: 'Français', value: 'fr' },
+  { label: 'Kiswahili', value: 'sw' },
+];
 
-const resources = {
+const RTL_LANGUAGES: ReadonlyArray<SupportedLanguage> = ['ar'];
+
+export const resources = {
   ar: { translation: ar },
   en: { translation: en },
   fr: { translation: fr },
   sw: { translation: sw },
+} as const;
+
+const localeToLanguage = (locale?: string | null): SupportedLanguage => {
+  if (!locale) {
+    return 'en';
+  }
+
+  const languageCode = locale.split('-')[0]?.toLowerCase();
+  return SUPPORTED_LANGUAGES.some(
+    (supportedLanguage) => supportedLanguage === languageCode,
+  )
+    ? (languageCode as SupportedLanguage)
+    : 'en';
 };
 
-const getDeviceLanguage = (): SupportedLanguage => {
-  const locale = Localization.locale ?? 'en';
-  const tag = locale.split('-')[0] as SupportedLanguage;
-  return SUPPORTED_LANGUAGES.includes(tag) ? tag : 'en';
+export const resolveDeviceLanguage = (): SupportedLanguage => {
+  const primaryLocale = Localization.getLocales()[0];
+
+  return localeToLanguage(
+    primaryLocale?.languageCode ?? primaryLocale?.languageTag ?? 'en',
+  );
 };
 
-/**
- * Apply RTL layout when the given language code is right-to-left.
- * React Native's I18nManager.forceRTL takes effect on next render cycle.
- */
-export const applyRTL = (lang: string): void => {
-  const shouldBeRTL = RTL_LANGUAGES.has(lang);
+export const applyRTL = (language: SupportedLanguage): void => {
+  const shouldBeRTL = RTL_LANGUAGES.some(
+    (rtlLanguage) => rtlLanguage === language,
+  );
+
   if (I18nManager.isRTL !== shouldBeRTL) {
     I18nManager.forceRTL(shouldBeRTL);
   }
 };
 
 if (!i18n.isInitialized) {
-  const initialLang = getDeviceLanguage();
-  applyRTL(initialLang);
+  const initialLanguage = resolveDeviceLanguage();
+  applyRTL(initialLanguage);
 
-  i18n.use(initReactI18next).init({
+  void i18n.use(initReactI18next).init({
     compatibilityJSON: 'v3',
-    resources,
-    lng: initialLang,
+    defaultNS: 'translation',
     fallbackLng: 'en',
-    interpolation: { escapeValue: false },
+    interpolation: {
+      escapeValue: false,
+    },
+    lng: initialLanguage,
+    react: {
+      useSuspense: false,
+    },
+    resources,
+    returnNull: false,
+    supportedLngs: [...SUPPORTED_LANGUAGES],
   });
 }
 

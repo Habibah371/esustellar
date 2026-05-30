@@ -9,7 +9,7 @@ import { useInvalidateGroups } from '../../hooks/useGroups';
 import { useInvalidateTransactions } from '../../hooks/useTransactions';
 import { useInvalidateNotifications } from '../../hooks/useNotifications';
 import { triggerHapticFeedback } from '../../utils/haptics';
-import { logger } from '../../utils/logger';
+import { logger } from '../../services/logger';
 
 function getGreeting(hour: number, t: any): string {
   if (hour < 12) return t('home.goodMorning');

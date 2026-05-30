@@ -4,13 +4,14 @@
     "strict": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
     },
     "jsx": "react-native",
     "lib": ["ES2015", "DOM"],
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "moduleResolution": "node"
-  }
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+  },
 }

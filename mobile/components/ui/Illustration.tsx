@@ -2,6 +2,18 @@
  * Empty State Illustrations
  * Visual assets for empty state components
  */
+import React from 'react';
+import type { ReactNode } from 'react';
+import {
+  DefaultIllustration,
+  ErrorIllustration,
+  GroupsIllustration,
+  NotificationsIllustration,
+  SearchIllustration,
+  SuccessIllustration,
+  TransactionsIllustration,
+  WalletIllustration,
+} from '../../assets/illustrations';
 
 export type IllustrationType = 
   | 'groups' 
@@ -14,43 +26,43 @@ export type IllustrationType =
   | 'default';
 
 interface IllustrationConfig {
-  emoji: string;
   description: string;
+  render: () => ReactNode;
 }
 
 // Map of illustration types to their visual representation
 export const illustrations: Record<IllustrationType, IllustrationConfig> = {
   groups: {
-    emoji: '👥',
     description: 'No groups yet',
+    render: () => <GroupsIllustration />,
   },
   transactions: {
-    emoji: '💳',
     description: 'No transactions yet',
+    render: () => <TransactionsIllustration />,
   },
   notifications: {
-    emoji: '🔔',
     description: 'No notifications',
+    render: () => <NotificationsIllustration />,
   },
   search: {
-    emoji: '🔍',
     description: 'No results found',
+    render: () => <SearchIllustration />,
   },
   wallet: {
-    emoji: '💼',
     description: 'No wallet connected',
+    render: () => <WalletIllustration />,
   },
   error: {
-    emoji: '⚠️',
     description: 'Something went wrong',
+    render: () => <ErrorIllustration />,
   },
   success: {
-    emoji: '✅',
     description: 'Success',
+    render: () => <SuccessIllustration />,
   },
   default: {
-    emoji: '📦',
     description: 'Nothing here',
+    render: () => <DefaultIllustration />,
   },
 };
 
@@ -65,5 +77,15 @@ export function getIllustration(type: IllustrationType): IllustrationConfig {
  * Get illustration emoji by type
  */
 export function getIllustrationEmoji(type: IllustrationType): string {
-  return getIllustration(type).emoji;
+  const fallbackMap: Record<IllustrationType, string> = {
+    groups: '👥',
+    transactions: '💳',
+    notifications: '🔔',
+    search: '🔍',
+    wallet: '💼',
+    error: '⚠️',
+    success: '✅',
+    default: '📦',
+  };
+  return fallbackMap[type];
 }
