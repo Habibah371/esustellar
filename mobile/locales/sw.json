@@ -1,4 +1,12 @@
 {
+  "common": {
+    "appName": "EsuStellar",
+    "back": "Nyuma",
+    "enable": "Wezesha",
+    "disable": "Zima",
+    "loading": "Inapakia...",
+    "unavailable": "Haipatikani"
+  },
   "tabs": {
     "home": "Nyumbani",
     "groups": "Vikundi",
@@ -19,25 +27,25 @@
     "skip": "Ruka",
     "next": "Endelea",
     "getStarted": "Anza",
-    "stayInformed": "Kaa na habari",
-    "notificationBody": "Pokea vikumbusho vya tarehe za mwisho, malipo, na masasisho ya kikundi ili usikose wakati muhimu.",
+    "stayInformed": "Endelea kufahamu",
+    "notificationBody": "Pata vikumbusho vya tarehe za mwisho, malipo, na masasisho ya vikundi ili usikose jambo muhimu.",
     "allowNotifications": "Ruhusu Arifa",
     "skipForNow": "Ruka kwa sasa",
     "slides": {
       "welcome": {
         "eyebrow": "Karibu",
-        "title": "Weka akiba na watu unaowaaminia",
-        "description": "Leta mzunguko wako wa akiba ya jamii kwenye blockchain bila kupoteza uzoefu wa kawaida wa kikundi."
+        "title": "Weka akiba na watu unaowaamini",
+        "description": "Leta mzunguko wa akiba wa jamii yako kwenye blockchain bila kupoteza uzoefu wa kawaida wa kikundi."
       },
       "transparent": {
         "eyebrow": "Uwazi",
         "title": "Fuatilia kila mchango kwa uwazi",
-        "description": "Fuatilia malipo, tarehe za mwisho, na maendeleo ya kikundi kwa masasisho rahisi mahali pamoja."
+        "description": "Fuatilia malipo, tarehe za mwisho na maendeleo ya kikundi kupitia masasisho rahisi katika sehemu moja."
       },
       "secure": {
         "eyebrow": "Salama",
-        "title": "Anza kwa ujasiri",
-        "description": "Unganisha pochi yako ya Stellar, simamia chaguo zako za usalama, na upokee vikumbusho vya msaada wakati unahitajika."
+        "title": "Anza kwa kujiamini",
+        "description": "Unganisha pochi yako ya Stellar, simamia chaguo zako za usalama na upokee vikumbusho vya kusaidia wakati muhimu."
       }
     }
   },
@@ -48,17 +56,17 @@
     "copyToast": "Anwani ya pochi imenakiliwa kwenye ubao wa kunakili",
     "copyFailed": "Imeshindwa kunakili anwani ya pochi",
     "biometricAuthentication": "Uthibitishaji wa Biometriki",
-    "supported": "Inasaidiwa",
+    "supported": "Inaungwa mkono",
     "enableBiometrics": "Wezesha biometriki",
     "useToSignIn": "Tumia {{supportedLabel}} kuingia",
     "checkingDeviceCapabilities": "Inakagua uwezo wa kifaa…",
-    "biometricsNotSupported": "Biometriki haziungwi mkono kwenye kifaa hiki",
+    "biometricsNotSupported": "Biometriki hazitumiki kwenye kifaa hiki",
     "setUpPinFallback": "Weka PIN hapa chini kama mbadala wakati biometriki haipatikani.",
     "noBiometricsEnrolled": "Hakuna biometriki zilizosajiliwa",
-    "setupBiometricsHelper": "Tafadhali sanidi alama ya kidole au utambuzi wa uso katika mipangilio ya kifaa chako, kisha rudi hapa kuiwezesha.",
+    "setupBiometricsHelper": "Tafadhali sanidi alama ya kidole au utambuzi wa uso katika mipangilio ya kifaa chako, kisha urudi hapa kuiwezesha.",
     "about": "Kuhusu",
     "version": "Toleo",
-    "build": "Muundo",
+    "build": "Namba ya build",
     "pinFallback": "PIN ya Mbadala",
     "pinDescription": "Weka PIN ya tarakimu 4-6 kama mbadala wakati biometriki haipatikani.",
     "setUpPin": "Weka PIN",
@@ -70,10 +78,10 @@
     "next": "Endelea",
     "confirm": "Thibitisha",
     "pinSet": "PIN imewekwa",
-    "pinFallbackInfo": "Inatumika kama mbadala wakati biometriki inashindwa",
+    "pinFallbackInfo": "Hutumika kama mbadala biometriki inaposhindikana",
     "change": "Badilisha",
     "remove": "Ondoa",
-    "pinMustDigits": "PIN lazima iwe tarakimu 4-6",
+    "pinMustDigits": "PIN lazima iwe na tarakimu 4-6",
     "pinsDoNotMatch": "PIN hazilingani",
     "biometricsEnabled": "Uthibitishaji wa biometriki umewezeshwa",
     "biometricsDisabled": "Uthibitishaji wa biometriki umezimwa",
@@ -81,15 +89,63 @@
     "failedToSavePin": "Imeshindwa kuhifadhi PIN",
     "pinRemoved": "PIN imeondolewa",
     "language": "Lugha",
-    "languageLabel": "Chagua lugha ya programu",
-    "languageChangeSuccess": "Lugha imesasishwa."
+    "languageLabel": "Chagua lugha ya programu yako",
+    "languageChangeSuccess": "Lugha imesasishwa.",
+    "haptics": "Mtetemo",
+    "hapticsDescription": "Tumia mtetemo mdogo kwa mwingiliano muhimu na mabadiliko ya hali."
+  },
+  "groups": {
+    "title": "Vikundi",
+    "searchPlaceholder": "Tafuta vikundi...",
+    "filters": {
+      "all": "Vyote",
+      "joined": "Ulivyojiunga",
+      "open": "Vilivyo wazi"
+    },
+    "errors": {
+      "fetchFailed": "Imeshindwa kupakia vikundi. Tafadhali angalia muunganisho wako na ujaribu tena."
+    },
+    "emptyTitle": "Hakuna vikundi vya kuonyesha",
+    "emptyMessage": "Jaribu kichujio kingine ili kuona vikundi vinavyolingana.",
+    "memberCount_one": "{{count}} mwanachama",
+    "memberCount_other": "{{count}} wanachama"
+  },
+  "notifications": {
+    "title": "Arifa",
+    "subtitle": "Washa arifa ya ndani ili kujaribu mabango ya arifa wakati programu iko wazi na urambazaji wa kugusa.",
+    "scheduleGroupDetail": "Panga Arifa ya Maelezo ya Kikundi",
+    "scheduleFallback": "Panga Arifa ya Njia Mbadala",
+    "contributionDueTitle": "Mchango wako umewadia",
+    "contributionDueBody": "Gusa kufungua skrini ya maelezo ya kikundi.",
+    "unknownDestinationTitle": "Mahali pasipojulikana",
+    "unknownDestinationBody": "Gusa kujaribu njia mbadala ya skrini ya nyumbani.",
+    "scheduledTitle": "Arifa imepangwa",
+    "scheduledBody": "Arifa ya majaribio itaonekana baada ya sekunde 2.",
+    "fallbackScheduledTitle": "Arifa ya njia mbadala imepangwa",
+    "fallbackScheduledBody": "Arifa ya majaribio yenye njia isiyojulikana itaonekana baada ya sekunde 2.",
+    "unableToScheduleTitle": "Imeshindwa kupanga arifa",
+    "unableToScheduleBody": "Tafadhali jaribu tena."
   },
   "profile": {
     "editProfile": "Hariri Wasifu",
     "settings": "Mipangilio",
     "disconnectWallet": "Tenganisha Pochi"
   },
+  "notificationSettings": {
+    "loading": "Inapakia mipangilio...",
+    "title": "Mipangilio ya Arifa",
+    "description": "Chagua arifa za push unazotaka kupokea",
+    "contributionRemindersTitle": "Vikumbusho vya Michango",
+    "contributionRemindersDescription": "Pata arifa wakati michango yako inapowadia",
+    "payoutReceivedTitle": "Malipo Yamepokelewa",
+    "payoutReceivedDescription": "Arifa unapopokea malipo",
+    "newMemberJoinedTitle": "Mwanachama Mpya Amejiunga",
+    "newMemberJoinedDescription": "Wanachama wapya wanapojiunga na vikundi vyako",
+    "groupStatusChangesTitle": "Mabadiliko ya Hali ya Kikundi",
+    "groupStatusChangesDescription": "Masasisho wakati hali ya kikundi inapobadilika"
+  },
   "lock": {
-    "tapToUnlock": "Gusa ili kufungua"
+    "tapToUnlock": "Gusa ili kufungua",
+    "biometricPrompt": "Fungua {{appName}}"
   }
 }

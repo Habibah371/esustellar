@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -11,7 +11,10 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { TransactionItem, TransactionType } from '../../components/transactions/TransactionItem';
+import {
+  TransactionItem,
+  TransactionType,
+} from '../../components/transactions/TransactionItem';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { useRefresh } from '../../hooks/useRefresh';
 
@@ -25,12 +28,18 @@ interface Transaction {
 
 const PAGE_SIZE = 10;
 
+const ItemSeparator = React.memo(function ItemSeparator() {
+  return <View style={styles.separator} />;
+});
+
 function generateMockTransactions(page: number): Transaction[] {
   const base = page * PAGE_SIZE;
   return Array.from({ length: PAGE_SIZE }, (_, i) => ({
     id: `tx-${base + i}`,
     type: (['contribution', 'payout', 'fee'] as TransactionType[])[i % 3],
-    description: ['Monthly contribution', 'Payout received', 'Platform fee'][i % 3],
+    description: ['Monthly contribution', 'Payout received', 'Platform fee'][
+      i % 3
+    ],
     amount: [50, 250, 2.5][i % 3],
     date: new Date(Date.now() - (base + i) * 86400000).toISOString(),
   }));
@@ -45,20 +54,20 @@ export default function TransactionHistory() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
 
-  const loadPage = useCallback(async (
-    pageNum: number,
-    { reset = false, showFullLoader = true } = {},
-  ) => {
-    if (pageNum === 0 && showFullLoader) {
-      setLoading(true);
-    } else if (pageNum > 0) {
-      setLoadingMore(true);
-    }
+  const loadPage = useCallback(
+    async (pageNum: number, { reset = false, showFullLoader = true } = {}) => {
+      if (pageNum === 0 && showFullLoader) {
+        setLoading(true);
+      } else if (pageNum > 0) {
+        setLoadingMore(true);
+      }
 
     try {
       await new Promise((r) => setTimeout(r, 600));
       const data = generateMockTransactions(pageNum);
-      setTransactions((prev) => (reset ? data : [...prev, ...data]));
+      setTransactions((prev: Transaction[]) =>
+        reset ? data : [...prev, ...data],
+      );
       setHasMore(pageNum < 2);
       setPage(pageNum);
     } finally {
@@ -69,7 +78,7 @@ export default function TransactionHistory() {
   }, []);
 
   useEffect(() => {
-    loadPage(0);
+    void loadPage(0);
   }, [loadPage]);
 
   const handleRefresh = useCallback(
@@ -79,13 +88,55 @@ export default function TransactionHistory() {
   const { refreshing, onRefresh } = useRefresh(handleRefresh);
 
   const handleLoadMore = useCallback(() => {
-    if (!loadingMore && !refreshing && hasMore) loadPage(page + 1);
+    if (!loadingMore && !refreshing && hasMore) {
+      void loadPage(page + 1);
+    }
   }, [loadingMore, refreshing, hasMore, page, loadPage]);
+
+  const handleBack = useCallback(() => {
+    router.back();
+  }, [router]);
+
+  const renderItem = useCallback(
+    ({ item }: { item: Transaction }) => (
+      <TransactionItem
+        type={item.type}
+        description={item.description}
+        amount={item.amount}
+        date={item.date}
+      />
+    ),
+    [],
+  );
+
+  const contentContainerStyle = useMemo(
+    () => [styles.list, transactions.length === 0 && styles.listEmpty],
+    [transactions.length],
+  );
+
+  const listFooterComponent = useMemo(
+    () =>
+      loadingMore ? (
+        <ActivityIndicator color="#6366F1" style={styles.footer} />
+      ) : null,
+    [loadingMore],
+  );
+
+  const listEmptyComponent = useMemo(
+    () => (
+      <EmptyState
+        icon="📭"
+        title="No transactions yet"
+        message="Your contributions and payouts will appear here."
+      />
+    ),
+    [],
+  );
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <TouchableOpacity onPress={handleBack} style={styles.backButton}>
           <Ionicons name="arrow-back" size={20} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Transaction History</Text>
@@ -100,19 +151,9 @@ export default function TransactionHistory() {
         <FlatList
           data={transactions}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <TransactionItem
-              type={item.type}
-              description={item.description}
-              amount={item.amount}
-              date={item.date}
-            />
-          )}
-          contentContainerStyle={[
-            styles.list,
-            transactions.length === 0 && styles.listEmpty,
-          ]}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          renderItem={renderItem}
+          contentContainerStyle={contentContainerStyle}
+          ItemSeparatorComponent={ItemSeparator}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -122,17 +163,8 @@ export default function TransactionHistory() {
           }
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.3}
-          ListEmptyComponent={
-            <EmptyState
-              tone="dark"
-              illustration="transactions"
-              title="No transactions yet"
-              message="Your contributions and payouts will appear here."
-            />
-          }
-          ListFooterComponent={
-            loadingMore ? <ActivityIndicator color="#6366F1" style={styles.footer} /> : null
-          }
+          ListEmptyComponent={listEmptyComponent}
+          ListFooterComponent={listFooterComponent}
         />
       )}
     </SafeAreaView>
