@@ -1,16 +1,18 @@
-import React from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   Share,
+  ToastAndroid,
+  Platform,
   Alert,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import * as Clipboard from 'expo-clipboard';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import Button from '../../../components/ui/Button';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import * as Clipboard from "expo-clipboard";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import Button from "../../../components/ui/Button";
 
 export default function GroupCreatedSuccess() {
   const router = useRouter();
@@ -20,12 +22,23 @@ export default function GroupCreatedSuccess() {
     groupName: string;
   }>();
 
-  const code = inviteCode ?? 'ESU-ABCD-1234';
-  const id = groupId ?? 'new';
+  const [copied, setCopied] = useState(false);
+  const code = inviteCode ?? "ESU-ABCD-1234";
+  const id = groupId ?? "new";
+
+  const showToast = (message: string) => {
+    if (Platform.OS === "android") {
+      ToastAndroid.show(message, ToastAndroid.SHORT);
+    } else {
+      Alert.alert("", message);
+    }
+  };
 
   const handleCopy = async () => {
     await Clipboard.setStringAsync(code);
-    Alert.alert('Copied!', 'Invite code copied to clipboard.');
+    setCopied(true);
+    showToast("Invite code copied!");
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const handleShare = async () => {
@@ -33,6 +46,7 @@ export default function GroupCreatedSuccess() {
   };
 
   const handleViewGroup = () => {
+    // replace so user cannot navigate back to this screen
     router.replace(`/groups/${id}`);
   };
 
@@ -48,12 +62,14 @@ export default function GroupCreatedSuccess() {
           <Text style={styles.codeText}>{code}</Text>
         </View>
 
-        <Button onPress={handleCopy} variant="outline" style={styles.actionBtn}>
-          Copy Invite Code
-        </Button>
+        <TouchableOpacity style={[styles.btn, styles.outlineBtn]} onPress={handleCopy}>
+          <Text style={styles.outlineBtnText}>{copied ? "Copied!" : "Copy Invite Code"}</Text>
+        </TouchableOpacity>
+
         <Button onPress={handleShare} variant="secondary" style={styles.actionBtn}>
           Share Invite Code
         </Button>
+
         <Button onPress={handleViewGroup} style={styles.actionBtn}>
           View My Group
         </Button>
@@ -63,32 +79,29 @@ export default function GroupCreatedSuccess() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0F172A' },
-  content: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-  },
+  container: { flex: 1, backgroundColor: "#0F172A" },
+  content: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24 },
   icon: { fontSize: 64, marginBottom: 16 },
-  headline: { fontSize: 28, fontWeight: '700', color: '#fff', marginBottom: 4 },
-  subtext: { fontSize: 16, color: '#94A3B8', marginBottom: 24 },
-  codeLabel: { fontSize: 13, color: '#64748B', marginBottom: 8 },
+  headline: { fontSize: 28, fontWeight: "700", color: "#fff", marginBottom: 4 },
+  subtext: { fontSize: 16, color: "#94A3B8", marginBottom: 24 },
+  codeLabel: { fontSize: 13, color: "#64748B", marginBottom: 8 },
   codeBox: {
-    backgroundColor: '#1E293B',
+    backgroundColor: "#1E293B",
     borderRadius: 12,
     paddingVertical: 16,
     paddingHorizontal: 32,
     marginBottom: 24,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: "#334155",
   },
   codeText: {
     fontSize: 24,
-    fontWeight: '700',
-    color: '#6366F1',
+    fontWeight: "700",
+    color: "#6366F1",
     letterSpacing: 4,
-    fontVariant: ['tabular-nums'],
   },
-  actionBtn: { width: '100%', marginBottom: 12 },
+  btn: { width: "100%", borderRadius: 12, paddingVertical: 14, alignItems: "center", marginBottom: 12 },
+  outlineBtn: { borderWidth: 1, borderColor: "#6366F1", backgroundColor: "transparent" },
+  outlineBtnText: { color: "#6366F1", fontSize: 16, fontWeight: "600" },
+  actionBtn: { width: "100%", marginBottom: 12 },
 });
