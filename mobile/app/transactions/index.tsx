@@ -6,12 +6,14 @@ import {
   StyleSheet,
   ActivityIndicator,
   TouchableOpacity,
+  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { TransactionItem, TransactionType } from '../../components/transactions/TransactionItem';
 import { EmptyState } from '../../components/ui/EmptyState';
+import { useRefresh } from '../../hooks/useRefresh';
 
 interface Transaction {
   id: string;
@@ -42,24 +44,39 @@ export default function TransactionHistory() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
 
-  const loadPage = useCallback(async (pageNum: number, reset = false) => {
-    if (pageNum === 0) setLoading(true); else setLoadingMore(true);
-    await new Promise((r) => setTimeout(r, 600));
-    const data = generateMockTransactions(pageNum);
-    setTransactions((prev) => (reset ? data : [...prev, ...data]));
-    setHasMore(pageNum < 2);
-    setPage(pageNum);
-    setLoading(false);
-    setLoadingMore(false);
+  const loadPage = useCallback(async (
+    pageNum: number,
+    { reset = false, showFullLoader = true } = {},
+  ) => {
+    if (pageNum === 0 && showFullLoader) {
+      setLoading(true);
+    } else if (pageNum > 0) {
+      setLoadingMore(true);
+    }
+
+    try {
+      await new Promise((r) => setTimeout(r, 600));
+      const data = generateMockTransactions(pageNum);
+      setTransactions((prev) => (reset ? data : [...prev, ...data]));
+      setHasMore(pageNum < 2);
+      setPage(pageNum);
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
   }, []);
 
   useEffect(() => { loadPage(0); }, [loadPage]);
 
-  const handleRefresh = useCallback(() => loadPage(0, true), [loadPage]);
+  const handleRefresh = useCallback(
+    () => loadPage(0, { reset: true, showFullLoader: false }),
+    [loadPage],
+  );
+  const { refreshing, onRefresh } = useRefresh(handleRefresh);
 
   const handleLoadMore = useCallback(() => {
-    if (!loadingMore && hasMore) loadPage(page + 1);
-  }, [loadingMore, hasMore, page, loadPage]);
+    if (!loadingMore && !refreshing && hasMore) loadPage(page + 1);
+  }, [loadingMore, refreshing, hasMore, page, loadPage]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -92,8 +109,14 @@ export default function TransactionHistory() {
             transactions.length === 0 && styles.listEmpty,
           ]}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
-          onRefresh={handleRefresh}
-          refreshing={loading}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor="#6366F1"
+              colors={['#6366F1']}
+            />
+          }
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.3}
           ListEmptyComponent={

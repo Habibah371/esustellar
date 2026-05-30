@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { TransactionItem, TransactionType } from '../../components/transactions/TransactionItem';
+import { useRefresh } from '../../hooks/useRefresh';
 
 type TabKey = 'All' | 'Contributions' | 'Payouts';
 
@@ -84,7 +85,6 @@ const getItemLayout = (_: unknown, index: number) => ({
 export default function TransactionHistoryScreen() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabKey>('All');
-  const [refreshing, setRefreshing] = useState(false);
   const [data, setData] = useState(MOCK_TRANSACTIONS);
 
   const counts = useMemo<Record<TabKey, number>>(
@@ -101,13 +101,12 @@ export default function TransactionHistoryScreen() {
     return typeFilter ? data.filter((t) => t.type === typeFilter) : data;
   }, [activeTab, data]);
 
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
+  const refreshTransactions = useCallback(async () => {
     // Replace with real fetch
     await new Promise((r) => setTimeout(r, 800));
     setData([...MOCK_TRANSACTIONS]);
-    setRefreshing(false);
   }, []);
+  const { refreshing, onRefresh } = useRefresh(refreshTransactions);
 
   const renderItem = useCallback(
     ({ item }: ListRenderItemInfo<Transaction>) => (

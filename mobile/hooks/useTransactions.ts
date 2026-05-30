@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { transactionsApi } from '../services/api/transactionsApi';
 import { queryKeys } from '../services/queryClient';
@@ -12,5 +13,8 @@ export function useUserTransactions(userAddress: string) {
 
 export function useInvalidateTransactions() {
   const queryClient = useQueryClient();
-  return () => queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all });
+  return useCallback(
+    () => queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all }),
+    [queryClient],
+  );
 }

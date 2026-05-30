@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 /**
  * Hook that manages pull-to-refresh state.
@@ -8,14 +8,25 @@ import { useState, useCallback } from 'react';
  */
 export function useRefresh(fetchFn: () => Promise<void>) {
   const [refreshing, setRefreshing] = useState(false);
+  const refreshPromiseRef = useRef<Promise<void> | null>(null);
 
   const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    try {
-      await fetchFn();
-    } finally {
-      setRefreshing(false);
+    if (refreshPromiseRef.current) {
+      return refreshPromiseRef.current;
     }
+
+    setRefreshing(true);
+    const refreshPromise = (async () => {
+      try {
+        await fetchFn();
+      } finally {
+        refreshPromiseRef.current = null;
+        setRefreshing(false);
+      }
+    })();
+
+    refreshPromiseRef.current = refreshPromise;
+    return refreshPromise;
   }, [fetchFn]);
 
   return { refreshing, onRefresh };
