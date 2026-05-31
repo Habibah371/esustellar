@@ -142,6 +142,18 @@ export default function OnboardingScreen() {
         </Text>
       </Pressable>
 
+      {isLastStep && (
+        <Pressable
+          accessibilityRole="link"
+          onPress={() => router.push('/legal/terms')}
+          style={styles.termsLink}
+        >
+          <Text style={styles.termsLinkText}>
+            By continuing, you agree to our Terms of Service
+          </Text>
+        </Pressable>
+      )}
+
       <Modal
         animationType="slide"
         onRequestClose={() => setShowNotificationPrompt(false)}
@@ -267,6 +279,15 @@ const styles = StyleSheet.create({
     color: '#475569',
     fontSize: 15,
     fontWeight: '700',
+  },
+  termsLink: {
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  termsLinkText: {
+    color: '#818CF8',
+    fontSize: 13,
+    textDecorationLine: 'underline',
   },
   modalBackdrop: {
     backgroundColor: 'rgba(15, 23, 42, 0.72)',

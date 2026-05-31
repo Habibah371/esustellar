@@ -23,6 +23,7 @@ import { getRouteFromNotificationData } from '../services/notifications/notifica
 import { queryClient } from '../services/queryClient';
 import { biometricService } from '../services/security';
 import { logger } from '../services/logger';
+import { registerBackgroundSyncScheduler } from '../services/sync/scheduler';
 
 const ONBOARDING_KEY = 'onboardingComplete';
 const BIOMETRIC_LOCK_KEY = 'biometricLockEnabled';
@@ -113,6 +114,11 @@ function RootLayoutContent() {
     const initialize = async () => {
       await loadLanguage();
       logger.info('RootLayout', 'App initializing');
+
+      // Register background sync scheduler (#299)
+      registerBackgroundSyncScheduler().catch((err) =>
+        logger.warn('RootLayout', 'Background sync registration failed', err),
+      );
 
       const onboardingComplete = await AsyncStorage.getItem(ONBOARDING_KEY);
 

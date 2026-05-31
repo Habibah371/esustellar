@@ -42,6 +42,7 @@ import {
   setHapticsEnabled as persistHapticsEnabled,
   triggerHapticFeedback,
 } from '../../services/haptics';
+import { getJSEngine } from '../../utils/hermes';
 
 const BIOMETRIC_LOCK_KEY = 'biometricLockEnabled';
 const WALLET_ADDRESS =
@@ -433,8 +434,29 @@ export default function SettingsScreen() {
             { backgroundColor: colors.card, borderColor: colors.border },
           ]}
         >
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            Legal
+          </Text>
+          <Button onPress={() => router.push('/legal/terms')}>
+            Terms of Service
+          </Button>
+          <Button onPress={() => router.push('/legal/privacy')}>
+            Privacy Policy
+          </Button>
+        </View>
+
+        {/* Version */}
+        <View
+          style={[
+            styles.section,
+            { backgroundColor: colors.card, borderColor: colors.border },
+          ]}
+        >
           <Text style={[styles.helperText, { color: colors.subtext }]}>
             Version: {Constants.expoConfig?.version}
+          </Text>
+          <Text style={[styles.helperText, { color: colors.subtext }]}>
+            JS Engine: {getJSEngine()}
           </Text>
         </View>
 
