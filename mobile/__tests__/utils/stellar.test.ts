@@ -7,7 +7,7 @@ describe('truncateAddress', () => {
     const address = 'GABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUVW';
     // 56 chars:       ↑ 4 start chars                              4 end ↑
     const result = truncateAddress(address);
-    expect(result).toBe('GABC...UVWX'); // adjust expected chars to match your util's slice bounds
+    expect(result).toBe('GABC...TUVW');
   });
 
   it('preserves the G prefix in the truncated form', () => {

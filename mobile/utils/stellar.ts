@@ -13,18 +13,21 @@ export function truncateAddress(address: string, leading = 4, trailing = 4): str
 
 /**
  * Formats a numeric amount into a consistent XLM display format.
- * Includes thousand separators, a fixed number of decimals, and an ' XLM' suffix.
- * 
+ * Trims trailing zeros, supports up to 7 decimal places (Stellar stroops precision),
+ * and appends an ' XLM' suffix.
+ *
  * @param amount The numeric amount to format
- * @param decimals The number of decimal places (default 2)
+ * @param maxDecimals Maximum decimal places shown (default 7, Stellar's max precision)
  * @param locale Optional locale override (defaults to device locale)
- * @returns A formatted string e.g., "1,234.50 XLM"
+ * @returns A formatted string e.g., "1,234.5 XLM"
  */
-export function formatXLM(amount: number, decimals = 2, locale?: string): string {
-  const value = typeof amount === 'number' && Number.isFinite(amount) ? amount : 0;
+export function formatXLM(amount: number | string, maxDecimals = 7, locale?: string): string {
+  const numeric = typeof amount === 'string' ? parseFloat(amount) : amount;
+  const raw = typeof numeric === 'number' && Number.isFinite(numeric) ? numeric : 0;
+  const value = Object.is(raw, -0) ? 0 : raw;
   const formatter = new Intl.NumberFormat(locale ?? getLocale(), {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: maxDecimals,
   });
   return `${formatter.format(value)} XLM`;
 }

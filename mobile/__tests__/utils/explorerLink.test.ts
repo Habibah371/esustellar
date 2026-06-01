@@ -1,4 +1,4 @@
-import { txExplorerLink, accountExplorerLink } from '@/utils/explorerLink';
+import { explorerLink } from '@/utils/explorerLink';
 
 // ─── Constants (mirror what your util uses internally) ────────────────────────
 

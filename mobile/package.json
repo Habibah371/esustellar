@@ -35,6 +35,9 @@
     "react-native": "0.74.0",
     "zustand": "^4.5.2"
   },
+  "overrides": {
+    "react-test-renderer": "18.2.0"
+  },
   "devDependencies": {
     "@babel/core": "^7.24.0",
     "@testing-library/react-native": "^12.4.0",

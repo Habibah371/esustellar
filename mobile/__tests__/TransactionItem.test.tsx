@@ -13,7 +13,7 @@ describe('TransactionItem', () => {
     const { getByText } = render(<TransactionItem {...BASE} type="contribution" />);
     expect(getByText('↑')).toBeTruthy();
     expect(getByText('Monthly contribution')).toBeTruthy();
-    expect(getByText('10.00 XLM')).toBeTruthy();
+    expect(getByText('10 XLM')).toBeTruthy();
   });
 
   it('renders payout with green icon', () => {

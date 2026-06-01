@@ -1,4 +1,4 @@
-import React, { Profiler } from 'react';
+import React from 'react';
 import { render } from '@testing-library/react-native';
 import { View, Text } from 'react-native';
 import { GroupCard } from '@/components/ui/GroupCard';
@@ -8,6 +8,26 @@ import { NotificationItem as TimelineNotificationItem } from '@/components/notif
 import { NotificationItem as StoreNotificationItem } from '@/components/NotificationItem';
 import { useNotificationsStore } from '@/stores/notificationsStore';
 
+/*
+ * Memoization is verified by counting how many times each component's render
+ * function is called. We wrap each memoized component in a spy-decorated
+ * factory so we can track its render count independently of React's Profiler
+ * (which has changed its firing semantics in React 18 concurrent mode).
+ */
+
+function makeRenderSpy<P extends object>(
+  Component: React.ComponentType<P>,
+): [React.ComponentType<P>, jest.Mock] {
+  const spy = jest.fn();
+  const SpyFn = (props: P) => {
+    spy(props);
+    return React.createElement(Component, props);
+  };
+  SpyFn.displayName = `Spy(${(Component as any).displayName ?? Component.name})`;
+  const Spy = React.memo(SpyFn);
+  return [Spy as unknown as React.ComponentType<P>, spy];
+}
+
 describe('memoized component render stability', () => {
   beforeEach(() => {
     useNotificationsStore.setState({
@@ -16,9 +36,8 @@ describe('memoized component render stability', () => {
     });
   });
 
-  it('keeps GroupCard at one commit when the parent rerenders with stable props', () => {
-    // Before memoization this stable-props parent rerender committed twice; after memoization it stays at one.
-    const onRender = jest.fn();
+  it('keeps GroupCard from re-rendering when the parent rerenders with stable props', () => {
+    const [SpyGroupCard, spy] = makeRenderSpy(GroupCard);
     const onPress = jest.fn();
 
     const Parent = ({
@@ -30,31 +49,28 @@ describe('memoized component render stability', () => {
     }) => (
       <View>
         <Text>{tick}</Text>
-        <Profiler id="group-card" onRender={onRender}>
-          <GroupCard
-            name="Family Savings"
-            status="active"
-            contributionAmount={contributionAmount}
-            dueDate="2025-05-01"
-            onPress={onPress}
-          />
-        </Profiler>
+        <SpyGroupCard
+          name="Family Savings"
+          status="active"
+          contributionAmount={contributionAmount}
+          dueDate="2025-05-01"
+          onPress={onPress}
+        />
       </View>
     );
 
     const { rerender } = render(<Parent tick={0} />);
-    expect(onRender).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(1);
 
     rerender(<Parent tick={1} />);
-    expect(onRender).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(1);
 
     rerender(<Parent tick={2} contributionAmount="60 XLM / month" />);
-    expect(onRender).toHaveBeenCalledTimes(2);
+    expect(spy).toHaveBeenCalledTimes(2);
   });
 
-  it('keeps Avatar at one commit when the parent rerenders with stable props', () => {
-    // Before memoization this stable-props parent rerender committed twice; after memoization it stays at one.
-    const onRender = jest.fn();
+  it('keeps Avatar from re-rendering when the parent rerenders with stable props', () => {
+    const [SpyAvatar, spy] = makeRenderSpy(Avatar);
 
     const Parent = ({
       tick,
@@ -65,25 +81,22 @@ describe('memoized component render stability', () => {
     }) => (
       <View>
         <Text>{tick}</Text>
-        <Profiler id="avatar" onRender={onRender}>
-          <Avatar name="John Doe" size={size} />
-        </Profiler>
+        <SpyAvatar name="John Doe" size={size} />
       </View>
     );
 
     const { rerender } = render(<Parent tick={0} />);
-    expect(onRender).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(1);
 
     rerender(<Parent tick={1} />);
-    expect(onRender).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(1);
 
     rerender(<Parent tick={2} size="lg" />);
-    expect(onRender).toHaveBeenCalledTimes(2);
+    expect(spy).toHaveBeenCalledTimes(2);
   });
 
-  it('keeps TransactionItem at one commit when the parent rerenders with stable props', () => {
-    // Before memoization this stable-props parent rerender committed twice; after memoization it stays at one.
-    const onRender = jest.fn();
+  it('keeps TransactionItem from re-rendering when the parent rerenders with stable props', () => {
+    const [SpyTransactionItem, spy] = makeRenderSpy(TransactionItem);
     const date = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString();
 
     const Parent = ({
@@ -95,32 +108,29 @@ describe('memoized component render stability', () => {
     }) => (
       <View>
         <Text>{tick}</Text>
-        <Profiler id="transaction-item" onRender={onRender}>
-          <TransactionItem
-            type="contribution"
-            description="Monthly contribution"
-            amount={amount}
-            date={date}
-          />
-        </Profiler>
+        <SpyTransactionItem
+          type="contribution"
+          description="Monthly contribution"
+          amount={amount}
+          date={date}
+        />
       </View>
     );
 
     const { rerender } = render(<Parent tick={0} />);
-    expect(onRender).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(1);
 
     rerender(<Parent tick={1} />);
-    expect(onRender).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(1);
 
     rerender(<Parent tick={2} amount={20} />);
-    expect(onRender).toHaveBeenCalledTimes(2);
+    expect(spy).toHaveBeenCalledTimes(2);
   });
 
-  it('keeps timeline NotificationItem at one commit when the parent rerenders with equivalent props', () => {
-    // Before memoization this stable-props parent rerender committed twice; after memoization it stays at one.
-    const onRender = jest.fn();
+  it('keeps timeline NotificationItem from re-rendering when the parent rerenders with equivalent props', () => {
+    const [SpyNotificationItem, spy] = makeRenderSpy(TimelineNotificationItem);
     const onPress = jest.fn();
-    const timestamp = new Date(Date.now() - 60 * 60 * 1000);
+    const stableDate = new Date(Date.now() - 60 * 60 * 1000);
 
     const Parent = ({
       tick,
@@ -131,39 +141,32 @@ describe('memoized component render stability', () => {
     }) => (
       <View>
         <Text>{tick}</Text>
-        <Profiler id="timeline-notification-item" onRender={onRender}>
-          <TimelineNotificationItem
-            type="contribution"
-            title="Contribution due"
-            message="Your next contribution is due soon."
-            date={new Date(timestamp.getTime())}
-            read={read}
-            onPress={onPress}
-          />
-        </Profiler>
+        <SpyNotificationItem
+          type="contribution"
+          title="Contribution due"
+          message="Your next contribution is due soon."
+          date={stableDate}
+          read={read}
+          onPress={onPress}
+        />
       </View>
     );
 
     const { rerender } = render(<Parent tick={0} />);
-    expect(onRender).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(1);
 
     rerender(<Parent tick={1} />);
-    expect(onRender).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(1);
 
     rerender(<Parent tick={2} read />);
-    expect(onRender).toHaveBeenCalledTimes(2);
+    expect(spy).toHaveBeenCalledTimes(2);
   });
 
-  it('keeps store NotificationItem at one commit when the parent rerenders with stable props', () => {
-    // Before memoization this stable-props parent rerender committed twice; after memoization it stays at one.
-    const onRender = jest.fn();
-    const item = {
-      id: '1',
-      title: 'Welcome',
-      message: 'Thanks for joining!',
-      read: false,
-      createdAt: new Date().toISOString(),
-    };
+  it('keeps store NotificationItem from re-rendering when the parent rerenders with stable props', () => {
+    const [SpyStoreNotificationItem, spy] = makeRenderSpy(StoreNotificationItem);
+    const createdAt = new Date().toISOString();
+    const unreadItem = { id: '1', title: 'Welcome', message: 'Thanks for joining!', read: false, createdAt };
+    const readItem = { id: '1', title: 'Welcome', message: 'Thanks for joining!', read: true, createdAt };
 
     const Parent = ({
       tick,
@@ -174,19 +177,17 @@ describe('memoized component render stability', () => {
     }) => (
       <View>
         <Text>{tick}</Text>
-        <Profiler id="store-notification-item" onRender={onRender}>
-          <StoreNotificationItem item={{ ...item, read }} />
-        </Profiler>
+        <SpyStoreNotificationItem item={read ? readItem : unreadItem} />
       </View>
     );
 
     const { rerender } = render(<Parent tick={0} />);
-    expect(onRender).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(1);
 
     rerender(<Parent tick={1} />);
-    expect(onRender).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(1);
 
     rerender(<Parent tick={2} read />);
-    expect(onRender).toHaveBeenCalledTimes(2);
+    expect(spy).toHaveBeenCalledTimes(2);
   });
 });

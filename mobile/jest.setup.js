@@ -1,5 +1,11 @@
 // jest.setup.js
 
+// Provide required environment variables so config/env.ts does not throw on import
+process.env.EXPO_PUBLIC_API_URL = 'https://api.esustellar.test';
+process.env.EXPO_PUBLIC_STELLAR_NETWORK = 'testnet';
+process.env.EXPO_PUBLIC_STELLAR_HORIZON_URL = 'https://horizon-testnet.stellar.org';
+process.env.EXPO_PUBLIC_STELLAR_NETWORK_PASSPHRASE = 'Test SDF Network ; September 2015';
+
 // Mock AsyncStorage
 jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
@@ -19,7 +25,20 @@ jest.mock('expo-local-authentication', () => ({
 }));
 
 // Mock expo-haptics
-jest.mock('expo-haptics', () => require('./__mocks__/expo-haptics.js'));
+jest.mock('expo-haptics', () => ({
+  impactAsync: jest.fn(),
+  notificationAsync: jest.fn(),
+  selectionAsync: jest.fn(),
+  ImpactFeedbackStyle: { Light: 'light', Medium: 'medium', Heavy: 'heavy' },
+  NotificationFeedbackType: { Success: 'success', Warning: 'warning', Error: 'error' },
+}));
+
+// Mock expo-localization with a valid locale
+jest.mock('expo-localization', () => ({
+  locale: 'en-US',
+  locales: [{ languageTag: 'en-US' }],
+  getLocales: () => [{ languageTag: 'en-US', languageCode: 'en', regionCode: 'US', currencyCode: 'USD', currencySymbol: '$', decimalSeparator: '.', digitGroupingSeparator: ',' }],
+}));
 
 // Mock expo-image
 jest.mock('expo-image', () => {
