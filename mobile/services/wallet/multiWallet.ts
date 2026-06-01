@@ -5,23 +5,21 @@
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface WalletEntry {
-  id: string;           // UUID
-  label: string;        // user-facing name e.g. "Main wallet"
-  publicKey: string;    // Stellar public key (G...)
-  /** Never store the secret key in plaintext — store an encrypted blob and
-   *  decrypt it with the device keychain when needed for signing. */
-  encryptedSecret: string;
-  createdAt: string;    // ISO
+  id: string;
+  label: string;
+  publicKey: string;
+  createdAt: string;
 }
 
 // ─── Storage keys ─────────────────────────────────────────────────────────────
-
 const WALLETS_KEY = 'multiWallet:list';
-const ACTIVE_KEY  = 'multiWallet:activeId';
+const ACTIVE_KEY = 'multiWallet:activeId';
+const SECRET_KEY_PREFIX = 'multiWallet:secret:';
 
 // ─── Internal helpers ─────────────────────────────────────────────────────────
 
@@ -32,6 +30,25 @@ async function readWallets(): Promise<WalletEntry[]> {
 
 async function writeWallets(wallets: WalletEntry[]): Promise<void> {
   await AsyncStorage.setItem(WALLETS_KEY, JSON.stringify(wallets));
+}
+
+function getSecretStorageKey(id: string): string {
+  return `${SECRET_KEY_PREFIX}${id}`;
+}
+
+async function readEncryptedSecret(id: string): Promise<string | null> {
+  return await SecureStore.getItemAsync(getSecretStorageKey(id));
+}
+
+async function writeEncryptedSecret(id: string, encryptedSecret: string): Promise<void> {
+  if (!encryptedSecret) {
+    return;
+  }
+  await SecureStore.setItemAsync(getSecretStorageKey(id), encryptedSecret);
+}
+
+async function removeEncryptedSecret(id: string): Promise<void> {
+  await SecureStore.deleteItemAsync(getSecretStorageKey(id));
 }
 
 // ─── Public API ───────────────────────────────────────────────────────────────
@@ -47,8 +64,16 @@ export async function getActiveWallet(): Promise<WalletEntry | null> {
     readWallets(),
     AsyncStorage.getItem(ACTIVE_KEY),
   ]);
-  if (!wallets.length) return null;
-  return wallets.find((w) => w.id === activeId) ?? wallets[0];
+
+  if (!activeId) {
+    return null;
+  }
+
+  return wallets.find((w) => w.id === activeId) ?? null;
+}
+
+export async function getWalletSecret(id: string): Promise<string | null> {
+  return readEncryptedSecret(id);
 }
 
 /**
@@ -58,7 +83,7 @@ export async function getActiveWallet(): Promise<WalletEntry | null> {
 export async function addWallet(
   label: string,
   publicKey: string,
-  encryptedSecret: string,
+  encryptedSecret?: string,
 ): Promise<WalletEntry> {
   const wallets = await readWallets();
 
@@ -66,7 +91,6 @@ export async function addWallet(
     id: `wallet_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
     label,
     publicKey,
-    encryptedSecret,
     createdAt: new Date().toISOString(),
   };
 
@@ -74,8 +98,11 @@ export async function addWallet(
   await writeWallets(wallets);
 
   if (wallets.length === 1) {
-    // First wallet — set as active automatically
     await AsyncStorage.setItem(ACTIVE_KEY, newWallet.id);
+  }
+
+  if (encryptedSecret) {
+    await writeEncryptedSecret(newWallet.id, encryptedSecret);
   }
 
   return newWallet;
@@ -88,6 +115,10 @@ export async function setActiveWallet(id: string): Promise<void> {
     throw new Error(`Wallet ${id} not found`);
   }
   await AsyncStorage.setItem(ACTIVE_KEY, id);
+}
+
+export async function clearActiveWallet(): Promise<void> {
+  await AsyncStorage.removeItem(ACTIVE_KEY);
 }
 
 /** Update a wallet's label. */
@@ -107,12 +138,13 @@ export async function removeWallet(id: string): Promise<void> {
   let wallets = await readWallets();
   const activeId = await AsyncStorage.getItem(ACTIVE_KEY);
 
-  wallets = wallets.filter((w) => w.id !== id);
-  await writeWallets(wallets);
+  const nextWallets = wallets.filter((w) => w.id !== id);
+  await writeWallets(nextWallets);
+  await removeEncryptedSecret(id);
 
   if (activeId === id) {
-    if (wallets.length > 0) {
-      await AsyncStorage.setItem(ACTIVE_KEY, wallets[0].id);
+    if (nextWallets.length > 0) {
+      await AsyncStorage.setItem(ACTIVE_KEY, nextWallets[0].id);
     } else {
       await AsyncStorage.removeItem(ACTIVE_KEY);
     }

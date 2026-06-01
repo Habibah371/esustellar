@@ -57,6 +57,8 @@ export const applyRTL = (language: SupportedLanguage): void => {
     (rtlLanguage) => rtlLanguage === language,
   );
 
+  I18nManager.allowRTL(true);
+
   if (I18nManager.isRTL !== shouldBeRTL) {
     I18nManager.forceRTL(shouldBeRTL);
   }

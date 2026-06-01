@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#F1F5F9',
-    marginLeft: 8,
+    marginStart: 8,
   },
   progressContainer: {
     marginTop: 8,

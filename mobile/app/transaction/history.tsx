@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
   },
   backBtn: { paddingVertical: 6, paddingHorizontal: 12, borderRadius: 8, backgroundColor: '#1E293B' },
   backBtnText: { color: '#F8FAFC', fontWeight: '600', fontSize: 14 },
-  title: { marginLeft: 14, fontSize: 18, fontWeight: '800', color: '#F8FAFC' },
+  title: { marginStart: 14, fontSize: 18, fontWeight: '800', color: '#F8FAFC' },
   tabBar: {
     flexDirection: 'row',
     backgroundColor: '#0F172A',

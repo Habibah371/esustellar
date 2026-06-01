@@ -84,14 +84,14 @@ const styles = StyleSheet.create({
   left: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: 12,
+    marginEnd: 12,
   },
   unreadDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
     backgroundColor: '#007AFF',
-    marginRight: 6,
+    marginEnd: 6,
   },
   icon: {
     fontSize: 20,
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   date: {
-    marginLeft: 8,
+    marginStart: 8,
     fontSize: 12,
     color: '#999',
   },

@@ -40,7 +40,7 @@ export function MemberAvatarStack({
         ))}
 
         {extraCount > 0 && (
-          <View style={[styles.extraBadge, { marginLeft: visibleMembers.length ? -12 : 0 }]}> 
+          <View style={[styles.extraBadge, { marginStart: visibleMembers.length ? -12 : 0 }]}> 
             <Text style={styles.extraText}>+{extraCount}</Text>
           </View>
         )}
@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   overlap: {
-    marginLeft: -12,
+    marginStart: -12,
   },
   extraBadge: {
     width: 40,

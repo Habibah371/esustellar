@@ -6,15 +6,23 @@ import {
   StyleSheet,
   Linking,
   SafeAreaView,
+  Alert,
 } from 'react-native';
+import { useRouter } from 'expo-router';
+import Button from '../../components/ui/Button';
 
 export default function WalletConnectScreen() {
-  const handleConnectFreighter = () => {
-    console.log('Connect Freighter pressed');
+  const router = useRouter();
+
+  const handleAddWallet = () => {
+    router.push('/wallet/add');
   };
 
-  const handleConnectLobstr = () => {
-    console.log('Connect Lobstr pressed');
+  const handleComingSoon = (walletName: string) => {
+    Alert.alert(
+      'Coming soon',
+      `${walletName} support is coming soon. For now, add a wallet manually.`,
+    );
   };
 
   const handleHelpLink = () => {
@@ -28,18 +36,28 @@ export default function WalletConnectScreen() {
         <Text style={styles.appName}>EsuStellar</Text>
         <Text style={styles.headline}>Connect your Stellar Wallet</Text>
         <Text style={styles.subMessage}>
-          Your wallet is used to sign contributions and payouts on-chain
+          Your wallet is used to sign contributions and payouts on-chain.
         </Text>
 
         <View style={styles.buttons}>
-          <TouchableOpacity style={styles.walletButton} onPress={handleConnectFreighter}>
+          <TouchableOpacity
+            style={styles.walletButton}
+            onPress={() => handleComingSoon('Freighter')}
+          >
             <Text style={styles.walletButtonText}>Connect Freighter</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={[styles.walletButton, styles.walletButtonSecondary]} onPress={handleConnectLobstr}>
-            <Text style={[styles.walletButtonText, styles.walletButtonTextSecondary]}>Connect Lobstr</Text>
+          <TouchableOpacity
+            style={[styles.walletButton, styles.walletButtonSecondary]}
+            onPress={() => handleComingSoon('Lobstr')}
+          >
+            <Text style={[styles.walletButtonText, styles.walletButtonTextSecondary]}>
+              Connect Lobstr
+            </Text>
           </TouchableOpacity>
         </View>
+
+        <Button onPress={handleAddWallet}>Add wallet manually</Button>
 
         <TouchableOpacity onPress={handleHelpLink}>
           <Text style={styles.helpLink}>What is a Stellar wallet?</Text>

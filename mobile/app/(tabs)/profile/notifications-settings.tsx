@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
   },
   settingInfo: {
     flex: 1,
-    marginRight: 16,
+    marginEnd: 16,
   },
   settingTitle: {
     color: '#ffffff',

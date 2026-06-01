@@ -11,6 +11,13 @@ export const AUTO_LOCK_OPTIONS = [
 ] as const;
 export const DEFAULT_TIMEOUT = 300; // 5 minutes
 
+// Global state to track last interaction time
+let lastInteractionTimestamp = Date.now();
+
+export function recordInteraction() {
+  lastInteractionTimestamp = Date.now();
+}
+
 export async function getAutoLockTimeout(): Promise<number> {
   const stored = await AsyncStorage.getItem(AUTO_LOCK_KEY);
   return stored !== null ? parseInt(stored, 10) : DEFAULT_TIMEOUT;
@@ -21,26 +28,59 @@ export async function setAutoLockTimeout(seconds: number): Promise<void> {
 }
 
 /**
- * Monitors AppState changes and calls `onLock` when the app resumes
- * after being backgrounded longer than the configured timeout.
+ * Monitors AppState changes and idle time to trigger `onLock`.
  */
 export function useAutoLock(onLock: () => void) {
   const backgroundedAt = useRef<number | null>(null);
 
   useEffect(() => {
+    const checkTimeout = async () => {
+      const timeout = await getAutoLockTimeout();
+      if (timeout === 0) return;
+
+      const now = Date.now();
+      const idleTime = (now - lastInteractionTimestamp) / 1000;
+
+      if (idleTime >= timeout) {
+        onLock();
+      }
+    };
+
     const handleChange = async (next: AppStateStatus) => {
       if (next === 'background' || next === 'inactive') {
         backgroundedAt.current = Date.now();
-      } else if (next === 'active' && backgroundedAt.current !== null) {
+      } else if (next === 'active') {
         const timeout = await getAutoLockTimeout();
-        if (timeout === 0) return; // Never
-        const elapsed = (Date.now() - backgroundedAt.current) / 1000;
-        if (elapsed >= timeout) onLock();
+        if (timeout === 0) return;
+
+        const now = Date.now();
+        // Check if we timed out while backgrounded
+        if (backgroundedAt.current !== null) {
+          const elapsed = (now - backgroundedAt.current) / 1000;
+          if (elapsed >= timeout) {
+            onLock();
+            backgroundedAt.current = null;
+            return;
+          }
+        }
+
+        // Also check if we timed out due to idle time
+        const idleTime = (now - lastInteractionTimestamp) / 1000;
+        if (idleTime >= timeout) {
+          onLock();
+        }
         backgroundedAt.current = null;
       }
     };
 
     const sub = AppState.addEventListener('change', handleChange);
-    return () => sub.remove();
+    
+    // Foreground idle check interval
+    const interval = setInterval(checkTimeout, 10000); // Check every 10 seconds
+
+    return () => {
+      sub.remove();
+      clearInterval(interval);
+    };
   }, [onLock]);
 }

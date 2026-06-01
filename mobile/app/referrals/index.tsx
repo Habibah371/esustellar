@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
   avatar: {
     width: 40, height: 40, borderRadius: 20,
     backgroundColor: '#DBEAFE', alignItems: 'center', justifyContent: 'center',
-    marginRight: 12,
+    marginEnd: 12,
   },
   avatarText: { fontSize: 16, fontWeight: '700', color: '#3B82F6' },
   referralInfo: { flex: 1 },

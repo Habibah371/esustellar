@@ -6,6 +6,7 @@ import {
   StyleSheet,
   ActivityIndicator,
   TouchableOpacity,
+  I18nManager,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -53,7 +54,7 @@ export default function ConfirmGroupScreen() {
           onPress={() => { triggerHapticFeedback.warning(); router.back(); }}
           style={styles.backButton}
         >
-          <Ionicons name="arrow-back" size={20} color="#fff" />
+          <Ionicons name={I18nManager.isRTL ? "arrow-forward" : "arrow-back"} size={20} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Review & Confirm</Text>
         <View style={{ width: 40 }} />
@@ -132,7 +133,7 @@ const styles = StyleSheet.create({
   },
   row: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
   rowLabel: { fontSize: 14, color: "#64748B", flex: 1 },
-  rowValue: { fontSize: 14, color: "#fff", fontWeight: "500", flex: 2, textAlign: "right" },
+  rowValue: { fontSize: 14, color: "#fff", fontWeight: "500", flex: 2, textAlign: I18nManager.isRTL ? "left" : "right" },
   disclaimer: {
     flexDirection: "row",
     alignItems: "center",
@@ -141,8 +142,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     marginBottom: 24,
-    borderLeftWidth: 3,
-    borderLeftColor: "#F59E0B",
+    borderStartWidth: 3,
+    borderStartColor: "#F59E0B",
   },
   disclaimerText: { flex: 1, fontSize: 13, color: "#F59E0B", lineHeight: 18 },
   createButton: {

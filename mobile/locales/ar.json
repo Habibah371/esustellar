@@ -1,95 +1,151 @@
 {
+  "common": {
+    "appName": "EsuStellar",
+    "back": "رجوع",
+    "enable": "تفعيل",
+    "disable": "تعطيل",
+    "loading": "جاري التحميل...",
+    "unavailable": "غير متاح"
+  },
   "tabs": {
-    "home": "Home",
-    "groups": "Groups",
-    "notifications": "Notifications",
-    "profile": "Profile"
+    "home": "الرئيسية",
+    "groups": "المجموعات",
+    "notifications": "التنبيهات",
+    "profile": "الملف الشخصي"
   },
   "home": {
-    "goodMorning": "Good morning",
-    "goodAfternoon": "Good afternoon",
-    "goodEvening": "Good evening",
-    "defaultUser": "EsuStellar User",
-    "totalBalance": "Total Balance",
-    "quickActions": "Quick Actions",
+    "goodMorning": "صباح الخير",
+    "goodAfternoon": "مساء الخير",
+    "goodEvening": "مساء الخير",
+    "defaultUser": "مستخدم EsuStellar",
+    "totalBalance": "إجمالي الرصيد",
+    "quickActions": "إجراءات سريعة",
     "balanceValue": "— XLM",
-    "notifications": "Notifications"
+    "notifications": "التنبيهات"
   },
   "onboarding": {
-    "skip": "Skip",
-    "next": "Next",
-    "getStarted": "Get Started",
-    "stayInformed": "Stay informed",
-    "notificationBody": "Get reminders for due dates, payouts, and group updates so you never miss an important moment.",
-    "allowNotifications": "Allow Notifications",
-    "skipForNow": "Skip for now",
+    "skip": "تخطي",
+    "next": "التالي",
+    "getStarted": "ابدأ الآن",
+    "stayInformed": "ابق على اطلاع",
+    "notificationBody": "احصل على تذكيرات بمواعيد الاستحقاق والمدفوعات وتحديثات المجموعة حتى لا تفوتك أي لحظة مهمة.",
+    "allowNotifications": "السماح بالتنبيهات",
+    "skipForNow": "تخطي الآن",
     "slides": {
       "welcome": {
-        "eyebrow": "Welcome",
-        "title": "Save with people you trust",
-        "description": "Bring your community savings circle on-chain without losing the familiar group experience."
+        "eyebrow": "مرحباً",
+        "title": "ادخر مع أشخاص تثق بهم",
+        "description": "انقل دائرة مدخرات مجتمعك إلى سلسلة الكتل دون فقدان تجربة المجموعة المألوفة."
       },
       "transparent": {
-        "eyebrow": "Transparent",
-        "title": "Track every contribution clearly",
-        "description": "Stay on top of payouts, due dates, and group progress with simple updates in one place."
+        "eyebrow": "شفاف",
+        "title": "تتبع كل مساهمة بوضوح",
+        "description": "ابق على اطلاع بالمدفوعات ومواعيد الاستحقاق وتقدم المجموعة من خلال تحديثات بسيطة في مكان واحد."
       },
       "secure": {
-        "eyebrow": "Secure",
-        "title": "Start with confidence",
-        "description": "Connect your Stellar wallet, manage your security options, and receive helpful reminders when it matters."
+        "eyebrow": "آمن",
+        "title": "ابدأ بثقة",
+        "description": "قم بتوصيل محفظة Stellar الخاصة بك، وإدارة خيارات الأمان الخاصة بك، وتلقي تذكيرات مفيدة عندما يهم الأمر."
       }
     }
   },
   "settings": {
-    "title": "Security Settings",
-    "walletAddress": "Wallet Address",
-    "copyWalletAddress": "Copy wallet address",
-    "copyToast": "Wallet address copied to clipboard",
-    "copyFailed": "Failed to copy wallet address",
-    "biometricAuthentication": "Biometric Authentication",
-    "supported": "Supported",
-    "enableBiometrics": "Enable biometrics",
-    "useToSignIn": "Use {{supportedLabel}} to sign in",
-    "checkingDeviceCapabilities": "Checking device capabilities…",
-    "biometricsNotSupported": "Biometrics not supported on this device",
-    "setUpPinFallback": "Set a PIN below as a fallback when biometrics are unavailable.",
-    "noBiometricsEnrolled": "No biometrics enrolled",
-    "setupBiometricsHelper": "Please set up fingerprint or face recognition in your device settings, then return here to enable it.",
-    "about": "About",
-    "version": "Version",
-    "build": "Build",
-    "pinFallback": "PIN Fallback",
-    "pinDescription": "Set a 4-6 digit PIN as a fallback when biometrics are unavailable.",
-    "setUpPin": "Set up PIN",
-    "enterPin": "Enter your PIN",
-    "confirmYourPin": "Confirm your PIN",
-    "pinDigits": "4-6 digits",
-    "reenterPin": "Re-enter PIN",
-    "cancel": "Cancel",
-    "next": "Next",
-    "confirm": "Confirm",
-    "pinSet": "PIN is set",
-    "pinFallbackInfo": "Used as fallback when biometrics fail",
-    "change": "Change",
-    "remove": "Remove",
-    "pinMustDigits": "PIN must be 4-6 digits",
-    "pinsDoNotMatch": "PINs do not match",
-    "biometricsEnabled": "Biometric authentication enabled",
-    "biometricsDisabled": "Biometric authentication disabled",
-    "biometricFailed": "Biometric verification failed",
-    "failedToSavePin": "Failed to save PIN",
-    "pinRemoved": "PIN removed",
-    "language": "Language",
-    "languageLabel": "Choose your app language",
-    "languageChangeSuccess": "Language updated."
+    "title": "إعدادات الأمان",
+    "walletAddress": "عنوان المحفظة",
+    "copyWalletAddress": "نسخ عنوان المحفظة",
+    "copyToast": "تم نسخ عنوان المحفظة إلى الحافظة",
+    "copyFailed": "فشل نسخ عنوان المحفظة",
+    "biometricAuthentication": "المصادقة البيومترية",
+    "supported": "مدعوم",
+    "enableBiometrics": "تفعيل البيومترية",
+    "useToSignIn": "استخدم {{supportedLabel}} لتسجيل الدخول",
+    "checkingDeviceCapabilities": "جارٍ التحقق من إمكانيات الجهاز...",
+    "biometricsNotSupported": "البيومترية غير مدعومة على هذا الجهاز",
+    "setUpPinFallback": "قم بإعداد رمز PIN أدناه كبديل عندما لا تتوفر البيومترية.",
+    "noBiometricsEnrolled": "لم يتم تسجيل أي بيانات بيومترية",
+    "setupBiometricsHelper": "يرجى إعداد بصمة الإصبع أو التعرف على الوجه في إعدادات جهازك، ثم العودة هنا لتفعيلها.",
+    "about": "حول",
+    "version": "الإصدار",
+    "build": "البناء",
+    "pinFallback": "بديل رمز PIN",
+    "pinDescription": "قم بإعداد رمز PIN مكون من 4-6 أرقام كبديل عندما لا تتوفر البيومترية.",
+    "setUpPin": "إعداد رمز PIN",
+    "enterPin": "أدخل رمز PIN الخاص بك",
+    "confirmYourPin": "تأكيد رمز PIN الخاص بك",
+    "pinDigits": "4-6 أرقام",
+    "reenterPin": "أعد إدخال رمز PIN",
+    "cancel": "إلغاء",
+    "next": "التالي",
+    "confirm": "تأكيد",
+    "pinSet": "تم تعيين رمز PIN",
+    "pinFallbackInfo": "يستخدم كبديل عند فشل البيومترية",
+    "change": "تغيير",
+    "remove": "إزالة",
+    "pinMustDigits": "يجب أن يتكون رمز PIN من 4-6 أرقام",
+    "pinsDoNotMatch": "رموز PIN غير متطابقة",
+    "biometricsEnabled": "تم تفعيل المصادقة البيومترية",
+    "biometricsDisabled": "تم تعطيل المصادقة البيومترية",
+    "biometricFailed": "فشل التحقق البيومتري",
+    "failedToSavePin": "فشل حفظ رمز PIN",
+    "pinRemoved": "تمت إزالة رمز PIN",
+    "language": "اللغة",
+    "languageLabel": "اختر لغة التطبيق",
+    "languageChangeSuccess": "تم تحديث اللغة.",
+    "haptics": "اللمس",
+    "hapticsDescription": "استخدم ملاحظات الاهتزاز الدقيقة للتفاعلات المهمة وتغييرات الحالة."
+  },
+  "groups": {
+    "title": "المجموعات",
+    "searchPlaceholder": "البحث في المجموعات...",
+    "filters": {
+      "all": "الكل",
+      "joined": "المشترك بها",
+      "open": "المفتوحة"
+    },
+    "errors": {
+      "fetchFailed": "فشل جلب المجموعات. يرجى التحقق من اتصالك والمحاولة مرة أخرى."
+    },
+    "emptyTitle": "لا توجد مجموعات لعرضها",
+    "emptyMessage": "جرب مرشحاً آخر لرؤية المجموعات المطابقة.",
+    "memberCount_one": "عضو {{count}}",
+    "memberCount_other": "أعضاء {{count}}"
+  },
+  "notifications": {
+    "title": "التنبيهات",
+    "subtitle": "قم بتشغيل تنبيه محلي للتحقق من لافتات المقدمة والتنقل بالنقر.",
+    "scheduleGroupDetail": "جدولة تنبيه تفاصيل المجموعة",
+    "scheduleFallback": "جدولة تنبيه بديل",
+    "contributionDueTitle": "استحقاق المساهمة",
+    "contributionDueBody": "انقر لفتح شاشة تفاصيل المجموعة.",
+    "unknownDestinationTitle": "وجهة غير معروفة",
+    "unknownDestinationBody": "انقر لاختبار مسار البديل للشاشة الرئيسية.",
+    "scheduledTitle": "تم جدولة التنبيه",
+    "scheduledBody": "سيظهر تنبيه اختباري خلال ثانيتين.",
+    "fallbackScheduledTitle": "تم جدولة التنبيه البديل",
+    "fallbackScheduledBody": "سيظهر تنبيه اختباري بمسار غير معروف خلال ثانيتين.",
+    "unableToScheduleTitle": "تعذر جدولة التنبيه",
+    "unableToScheduleBody": "يرجى المحاولة مرة أخرى."
   },
   "profile": {
-    "editProfile": "Edit Profile",
-    "settings": "Settings",
-    "disconnectWallet": "Disconnect Wallet"
+    "editProfile": "تعديل الملف الشخصي",
+    "settings": "الإعدادات",
+    "disconnectWallet": "قطع اتصال المحفظة"
+  },
+  "notificationSettings": {
+    "loading": "جاري تحميل الإعدادات...",
+    "title": "إعدادات التنبيهات",
+    "description": "اختر التنبيهات التي ترغب في تلقيها",
+    "contributionRemindersTitle": "تذكيرات المساهمة",
+    "contributionRemindersDescription": "احصل على تنبيه عندما يحين موعد مساهماتك",
+    "payoutReceivedTitle": "تم استلام الدفعة",
+    "payoutReceivedDescription": "تنبيهات عند استلامك للمدفوعات",
+    "newMemberJoinedTitle": "انضم عضو جديد",
+    "newMemberJoinedDescription": "عندما ينضم أعضاء جدد إلى مجموعاتك",
+    "groupStatusChangesTitle": "تغييرات حالة المجموعة",
+    "groupStatusChangesDescription": "تحديثات عند تغيير حالة المجموعة"
   },
   "lock": {
-    "tapToUnlock": "Tap to unlock"
+    "tapToUnlock": "انقر لإلغاء القفل",
+    "biometricPrompt": "إلغاء قفل {{appName}}"
   }
 }

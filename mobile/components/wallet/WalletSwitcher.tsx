@@ -207,8 +207,8 @@ const styles = StyleSheet.create({
   },
   sheet: {
     backgroundColor: '#fff',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    borderTopStartRadius: 24,
+    borderTopEndRadius: 24,
     paddingHorizontal: 20,
     paddingBottom: 36,
     maxHeight: '70%',
@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
     borderWidth: 1.5, borderColor: '#BFDBFE',
   },
   dot: {
-    width: 10, height: 10, borderRadius: 5, marginRight: 12,
+    width: 10, height: 10, borderRadius: 5, marginEnd: 12,
   },
   rowInfo: { flex: 1 },
   rowTop: { flexDirection: 'row', alignItems: 'center', gap: 8 },

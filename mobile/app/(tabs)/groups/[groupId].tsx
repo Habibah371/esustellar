@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   screenTitle: {
-    marginLeft: 16,
+    marginStart: 16,
     fontSize: 18,
     fontWeight: '700',
     color: '#0F172A',
@@ -264,7 +264,7 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: '#0F172A',
     flex: 1,
-    marginRight: 12,
+    marginEnd: 12,
   },
   amountRow: {
     marginBottom: 8,
@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
     color: '#64748B',
-    marginRight: 8,
+    marginEnd: 8,
   },
   inviteCodeValue: {
     fontSize: 16,

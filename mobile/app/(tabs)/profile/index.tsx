@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import {
+  I18nManager,
   SafeAreaView,
   ScrollView,
   View,
@@ -14,6 +15,7 @@ import Button from '../../../components/ui/Button';
 import { DisconnectModal } from '../../../components/wallet/DisconnectModal';
 import { useAuthStore } from '../../../store/authStore';
 import { useTheme } from '../../../context/ThemeContext';
+import { clearActiveWallet } from '../../../services/wallet/multiWallet';
 
 function truncateAddress(address: string): string {
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
@@ -34,18 +36,20 @@ const ProfileScreen = React.memo(() => {
     [walletAddress],
   );
 
-  const handleDisconnect = () => {
+  const handleDisconnect = async () => {
+    await clearActiveWallet();
     logout();
     setDisconnectModalVisible(false);
+    router.replace('/wallet/connect');
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.header}>
           <Avatar name={displayName} size="lg" />
-          <Text style={styles.displayName}>{displayName}</Text>
-          <Text style={styles.walletAddress}>{truncatedAddress}</Text>
+          <Text style={[styles.displayName, { color: colors.text }]}>{displayName}</Text>
+          <Text style={[styles.walletAddress, { color: colors.subtext }]}>{truncatedAddress}</Text>
         </View>
 
         <View style={styles.section}>
@@ -60,25 +64,31 @@ const ProfileScreen = React.memo(() => {
 
         <View style={styles.section}>
           <Pressable
-            style={styles.settingsRow}
+            style={[styles.settingsRow, { backgroundColor: colors.card }]}
             onPress={() => router.push('/profile/settings')}
             accessibilityRole="button"
           >
-            <Text style={styles.settingsLabel}>{t('profile.settings')}</Text>
-            <Text style={styles.chevron}>›</Text>
+            <Text style={[styles.settingsLabel, { color: colors.text }]}>
+              {t('profile.settings')}
+            </Text>
+            <Text style={[styles.chevron, { color: colors.subtext }]}>
+              {I18nManager.isRTL ? '‹' : '›'}
+            </Text>
           </Pressable>
 
-          <View style={styles.separator} />
+          <View style={[styles.separator, { backgroundColor: colors.border }]} />
 
           <Pressable
-            style={styles.settingsRow}
+            style={[styles.settingsRow, { backgroundColor: colors.card }]}
             onPress={() => setDisconnectModalVisible(true)}
             accessibilityRole="button"
           >
             <Text style={[styles.settingsLabel, { color: '#EF4444' }]}>
               {t('profile.disconnectWallet')}
             </Text>
-            <Text style={[styles.chevron, { color: '#EF4444' }]}>›</Text>
+            <Text style={[styles.chevron, { color: '#EF4444' }]}>
+              {I18nManager.isRTL ? '‹' : '›'}
+            </Text>
           </Pressable>
         </View>
 
@@ -99,7 +109,6 @@ export default ProfileScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
   },
   content: {
     padding: 24,
@@ -113,13 +122,11 @@ const styles = StyleSheet.create({
   displayName: {
     fontSize: 22,
     fontWeight: '800',
-    color: colors.text,
     marginTop: 16,
     marginBottom: 4,
   },
   walletAddress: {
     fontSize: 15,
-    color: colors.subtext,
   },
   section: {
     width: '100%',
@@ -131,22 +138,18 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 16,
     paddingHorizontal: 4,
-    backgroundColor: colors.card,
     borderRadius: 12,
   },
   settingsLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.text,
   },
   chevron: {
     fontSize: 24,
-    color: colors.subtext,
     lineHeight: 24,
   },
   separator: {
     height: 1,
-    backgroundColor: colors.border,
     marginVertical: 4,
   },
   spacer: {

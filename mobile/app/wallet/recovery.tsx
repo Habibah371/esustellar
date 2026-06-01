@@ -1,7 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Alert,
-  Pressable,
+  KeyboardAvoidingView,
+  Platform,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -9,157 +10,127 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 
+import { useAuthStore } from '../../store/authStore';
+import { addWallet, setActiveWallet } from '../../services/wallet/multiWallet';
+import { recoverPublicKeyFromInput } from '../../services/wallet/recovery';
+import { useTheme } from '../../context/ThemeContext';
 import Button from '../../components/ui/Button';
-
-const RECOVERY_ACK_KEY = 'walletRecoveryAcknowledgedAt';
-
-const backupChecklist = [
-  'Write your recovery phrase on paper and store it offline.',
-  'Keep two copies in separate secure locations.',
-  'Never share your phrase in chat, email, or screenshots.',
-];
-
-const edgeCases = [
-  'Lost device: restore wallet using your recovery phrase on a new phone.',
-  'Forgot PIN only: use recovery phrase to re-import wallet, then set a new PIN.',
-  'Phrase mismatch: stop and verify each word order before retrying.',
-];
 
 export default function WalletRecoveryScreen() {
   const router = useRouter();
-  const [acknowledged, setAcknowledged] = useState(false);
-  const [confirmText, setConfirmText] = useState('');
-  const [loading, setLoading] = useState(true);
+  const { colors } = useTheme();
+  const setWallet = useAuthStore((state) => state.setWallet);
 
-  useEffect(() => {
-    let mounted = true;
+  const [recoveryInput, setRecoveryInput] = useState('');
+  const [label, setLabel] = useState('Recovered wallet');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-    void (async () => {
-      const existing = await AsyncStorage.getItem(RECOVERY_ACK_KEY);
-      if (!mounted) return;
-      setAcknowledged(Boolean(existing));
+  const hasInput = recoveryInput.trim().length > 0;
+
+  const handleRecover = async () => {
+    setErrorMessage(null);
+    setLoading(true);
+
+    try {
+      const { publicKey } = await recoverPublicKeyFromInput(recoveryInput);
+      const walletLabel = label.trim().length > 0 ? label.trim() : 'Recovered wallet';
+      const wallet = await addWallet(walletLabel, publicKey);
+      await setActiveWallet(wallet.id);
+      setWallet({ publicKey: wallet.publicKey, walletType: 'multiWallet' });
+
+      Alert.alert(
+        'Wallet restored',
+        'Your wallet has been restored successfully. You can now use your account again.',
+      );
+      router.replace('/');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to recover wallet.';
+      setErrorMessage(message);
+    } finally {
       setLoading(false);
-    })();
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  const canComplete = useMemo(
-    () => confirmText.trim().toUpperCase() === 'RECOVER',
-    [confirmText],
-  );
-
-  const saveAcknowledgement = async () => {
-    if (!canComplete) return;
-
-    await AsyncStorage.setItem(RECOVERY_ACK_KEY, new Date().toISOString());
-    setAcknowledged(true);
-    setConfirmText('');
-    Alert.alert(
-      'Recovery ready',
-      'Backup instructions confirmed successfully.',
-    );
+    }
   };
 
-  if (loading) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <Text style={styles.loadingText}>Loading recovery options...</Text>
-      </SafeAreaView>
-    );
-  }
-
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.title}>Wallet Recovery</Text>
-        <Text style={styles.subtitle}>
-          Protect access to your wallet before anything goes wrong.
-        </Text>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}> 
+      <KeyboardAvoidingView
+        style={styles.wrapper}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <ScrollView
+          contentContainerStyle={[styles.content, { backgroundColor: colors.background }]}
+          keyboardShouldPersistTaps="handled"
+        >
+          <Text style={[styles.title, { color: colors.text }]}>Recover Wallet</Text>
+          <Text style={[styles.subtitle, { color: colors.subtext }]}>Enter your recovery phrase, secret seed, or Stellar public key to restore access.</Text>
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Backup Instructions</Text>
-          {backupChecklist.map((item) => (
-            <Text key={item} style={styles.bullet}>
-              • {item}
-            </Text>
-          ))}
-        </View>
+          <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}> 
+            <Text style={[styles.cardTitle, { color: colors.text }]}>What this does</Text>
+            <Text style={[styles.body, { color: colors.subtext }]}>This app stores only your Stellar public account address. Your recovery phrase or secret seed is used locally to restore your public key and is not persisted.</Text>
+          </View>
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Recovery Flow</Text>
-          <Text style={styles.body}>1. Open the app on a trusted device.</Text>
-          <Text style={styles.body}>2. Choose “Recover Existing Wallet”.</Text>
-          <Text style={styles.body}>3. Enter your phrase in exact order.</Text>
-          <Text style={styles.body}>
-            4. Set a new PIN and re-enable biometrics.
-          </Text>
-        </View>
+          <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}> 
+            <Text style={[styles.cardTitle, { color: colors.text }]}>Recovery input</Text>
+            <TextInput
+              value={recoveryInput}
+              onChangeText={setRecoveryInput}
+              placeholder="Enter recovery phrase or secret key"
+              placeholderTextColor={colors.subtext}
+              multiline
+              numberOfLines={4}
+              textAlignVertical="top"
+              autoCapitalize="none"
+              autoCorrect={false}
+              style={[styles.input, { borderColor: colors.border, color: colors.text, backgroundColor: colors.background }]}
+            />
+            <TextInput
+              value={label}
+              onChangeText={setLabel}
+              placeholder="Wallet label"
+              placeholderTextColor={colors.subtext}
+              style={[styles.input, { borderColor: colors.border, color: colors.text, backgroundColor: colors.background }]}
+            />
+            {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
+            <Button onPress={handleRecover} loading={loading} disabled={!hasInput || loading}>
+              Restore wallet
+            </Button>
+          </View>
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Edge Cases & Safety Checks</Text>
-          {edgeCases.map((item) => (
-            <Text key={item} style={styles.bullet}>
-              • {item}
-            </Text>
-          ))}
-        </View>
+          <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}> 
+            <Text style={[styles.cardTitle, { color: colors.text }]}>Tips for recovery</Text>
+            <Text style={[styles.bullet, { color: colors.subtext }]}>• Use the exact phrase order with single spaces.</Text>
+            <Text style={[styles.bullet, { color: colors.subtext }]}>• Secret seeds begin with an "S" and are 56 characters long.</Text>
+            <Text style={[styles.bullet, { color: colors.subtext }]}>• If you only have your public key, you can paste it directly.</Text>
+          </View>
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Secure Confirmation</Text>
-          <Text style={styles.body}>
-            Type RECOVER to confirm you have secured your backup.
-          </Text>
-          <TextInput
-            value={confirmText}
-            onChangeText={setConfirmText}
-            autoCapitalize="characters"
-            placeholder="Type RECOVER"
-            placeholderTextColor="#64748B"
-            style={styles.input}
-          />
-          <Button onPress={saveAcknowledgement} disabled={!canComplete}>
-            Confirm Backup Readiness
-          </Button>
-          {acknowledged ? (
-            <Text style={styles.success}>
-              Backup instructions acknowledged.
-            </Text>
-          ) : null}
-        </View>
-
-        <Pressable onPress={() => router.back()}>
-          <Text style={styles.back}>Back to Settings</Text>
-        </Pressable>
-      </ScrollView>
+          <Text style={[styles.note, { color: colors.subtext }]}>If you have already completed onboarding, this recovery path will restore wallet access immediately.</Text>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0F172A' },
-  content: { padding: 20, gap: 14, paddingBottom: 30 },
-  loadingText: { color: '#E2E8F0', padding: 20 },
-  title: { color: '#F8FAFC', fontSize: 24, fontWeight: '800' },
-  subtitle: { color: '#94A3B8', fontSize: 14, marginBottom: 6 },
-  card: { backgroundColor: '#1E293B', borderRadius: 14, padding: 14, gap: 8 },
-  cardTitle: { color: '#E2E8F0', fontSize: 16, fontWeight: '700' },
-  bullet: { color: '#CBD5E1', fontSize: 14, lineHeight: 20 },
-  body: { color: '#CBD5E1', fontSize: 14, lineHeight: 20 },
+  container: { flex: 1 },
+  wrapper: { flex: 1 },
+  content: { padding: 20, gap: 18, paddingBottom: 30 },
+  title: { fontSize: 26, fontWeight: '800' },
+  subtitle: { fontSize: 15, lineHeight: 22 },
+  card: { borderRadius: 16, padding: 16, gap: 12, borderWidth: 1 },
+  cardTitle: { fontSize: 16, fontWeight: '700' },
+  body: { fontSize: 14, lineHeight: 22 },
+  bullet: { fontSize: 14, lineHeight: 22 },
   input: {
     borderWidth: 1,
-    borderColor: '#475569',
-    borderRadius: 10,
-    color: '#F8FAFC',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    marginVertical: 2,
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 15,
+    minHeight: 48,
   },
-  success: { color: '#4ADE80', fontSize: 13, fontWeight: '600' },
-  back: { color: '#93C5FD', textAlign: 'center', marginTop: 4 },
+  note: { fontSize: 13, lineHeight: 20, textAlign: 'center', marginTop: 4 },
+  error: { color: '#F87171', fontSize: 13, lineHeight: 18 },
 });

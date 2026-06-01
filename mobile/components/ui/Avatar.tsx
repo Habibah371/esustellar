@@ -50,22 +50,21 @@ function AvatarComponent({ uri, name, size = 'md' }: Props) {
     [circleStyle, fallbackBgColor],
   );
 
-  if (imageSource) {
-    return (
-      <ExpoImage
-        source={imageSource}
-        style={circleStyle}
-        cachePolicy="memory-disk"
-        placeholder={{ thumbhash: undefined }}
-        transition={200}
-        contentFit="cover"
-      />
-    );
-  }
-
   return (
-    <View style={fallbackStyle}>
-      <Text style={initialsStyle}>{initials}</Text>
+    <View style={circleStyle}>
+      <View style={[StyleSheet.absoluteFill, fallbackStyle]}>
+        <Text style={initialsStyle}>{initials}</Text>
+      </View>
+      {imageSource && (
+        <ExpoImage
+          source={imageSource}
+          style={circleStyle}
+          cachePolicy="memory-disk"
+          transition={200}
+          contentFit="cover"
+          placeholder="|rF?hV%2WCj[ayj[a|j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj["
+        />
+      )}
     </View>
   );
 }

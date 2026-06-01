@@ -410,7 +410,7 @@ const styles = StyleSheet.create({
   },
   groupName: {
     flex: 1,
-    marginRight: 10,
+    marginEnd: 10,
     fontSize: 18,
     fontWeight: '700',
     color: '#0F172A',

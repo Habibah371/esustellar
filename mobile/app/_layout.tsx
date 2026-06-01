@@ -17,12 +17,17 @@ import { AnnouncementBanner } from '../components/announcements/AnnouncementBann
 import { NotificationBanner } from '../components/notifications/NotificationBanner';
 import { loadLanguage } from '../constants/i18n';
 import { ThemeProvider, useTheme } from '../context/ThemeContext';
-import { useAutoLock } from '../hooks/useAutoLock';
+import { useAutoLock, recordInteraction } from '../hooks/useAutoLock';
 import i18n from '../i18n';
 import { getRouteFromNotificationData } from '../services/notifications/notificationRouting';
 import { queryClient } from '../services/queryClient';
 import { biometricService } from '../services/security';
+import { registerAppUnlockHandler } from '../services/security/appLock';
+import { pinService } from '../services/security/pinService';
 import { logger } from '../services/logger';
+import { registerBackgroundSyncScheduler } from '../services/sync/scheduler';
+import { useAuthStore } from '../store/authStore';
+import { getActiveWallet } from '../services/wallet/multiWallet';
 
 const ONBOARDING_KEY = 'onboardingComplete';
 const BIOMETRIC_LOCK_KEY = 'biometricLockEnabled';
@@ -50,22 +55,44 @@ function RootLayoutContent() {
   const { colors } = useTheme();
   const { t } = useTranslation();
 
-  const promptBiometric = useCallback(async () => {
-    const enabled = await AsyncStorage.getItem(BIOMETRIC_LOCK_KEY);
+  const unlockApp = useCallback(async () => {
+    const biometricEnabled =
+      (await AsyncStorage.getItem(BIOMETRIC_LOCK_KEY)) === 'true';
+    const { isPinSet } = await pinService.getStatus();
 
-    if (enabled !== 'true') {
+    if (biometricEnabled) {
+      const result = await biometricService.authenticate(
+        t('lock.biometricPrompt', { appName: t('common.appName') }),
+        true,
+      );
+
+      if (result.success) {
+        setLocked(false);
+        recordInteraction();
+        return;
+      }
+
+      if (isPinSet) {
+        router.push('/security/enter-pin?reason=biometric-fallback');
+      }
       return;
     }
 
-    const result = await biometricService.authenticate(
-      t('lock.biometricPrompt', { appName: t('common.appName') }),
-      true,
-    );
-
-    if (result.success) {
-      setLocked(false);
+    if (isPinSet) {
+      router.push('/security/enter-pin?reason=auto-lock');
+      return;
     }
-  }, [t]);
+
+    setLocked(false);
+    recordInteraction();
+  }, [router, t]);
+
+  useEffect(() => {
+    return registerAppUnlockHandler(() => {
+      setLocked(false);
+      recordInteraction();
+    });
+  }, []);
 
   const openPinFallback = useCallback(() => {
     setLocked(false);
@@ -92,7 +119,7 @@ function RootLayoutContent() {
           if (enabled === 'true') {
             setLocked(true);
             setMasked(false);
-            await promptBiometric();
+            await unlockApp();
           } else {
             setMasked(false);
           }
@@ -101,10 +128,10 @@ function RootLayoutContent() {
     );
 
     return () => subscription.remove();
-  }, [promptBiometric]);
+  }, [unlockApp]);
 
   useAutoLock(() => {
-    router.replace('/wallet/connect');
+    setLocked(true);
   });
 
   useEffect(() => {
@@ -113,6 +140,10 @@ function RootLayoutContent() {
     const initialize = async () => {
       await loadLanguage();
       logger.info('RootLayout', 'App initializing');
+
+      registerBackgroundSyncScheduler().catch((err) =>
+        logger.warn('RootLayout', 'Background sync registration failed', err),
+      );
 
       const onboardingComplete = await AsyncStorage.getItem(ONBOARDING_KEY);
 
@@ -132,6 +163,37 @@ function RootLayoutContent() {
       active = false;
     };
   }, [router]);
+
+  const logout = useAuthStore((state) => state.logout);
+  const authWallet = useAuthStore((state) => state.wallet);
+  const setAuthWallet = useAuthStore((state) => state.setWallet);
+
+  useEffect(() => {
+    let active = true;
+
+    void (async () => {
+      const activeWallet = await getActiveWallet();
+
+      if (!active) {
+        return;
+      }
+
+      if (activeWallet) {
+        if (!authWallet || authWallet.publicKey !== activeWallet.publicKey) {
+          setAuthWallet({
+            publicKey: activeWallet.publicKey,
+            walletType: 'multiWallet',
+          });
+        }
+      } else if (authWallet?.walletType === 'multiWallet') {
+        logout();
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, [authWallet, logout, setAuthWallet]);
 
   const dismissBanner = useCallback(() => {
     if (bannerTimerRef.current) {
@@ -212,7 +274,13 @@ function RootLayoutContent() {
   }
 
   return (
-    <View style={[styles.root, { backgroundColor: colors.background }]}>
+    <View
+      style={[styles.root, { backgroundColor: colors.background }]}
+      onStartShouldSetResponderCapture={() => {
+        recordInteraction();
+        return false;
+      }}
+    >
       <Slot />
 
       <AnnouncementBanner />
@@ -233,7 +301,7 @@ function RootLayoutContent() {
       {locked && (
         <View style={styles.overlay}>
           <Text style={styles.overlayText}>{t('common.appName')}</Text>
-          <Text style={styles.lockHint} onPress={promptBiometric}>
+          <Text style={styles.lockHint} onPress={() => void unlockApp()}>
             {t('lock.tapToUnlock')}
           </Text>
           <Pressable style={styles.lockButton} onPress={openPinFallback}>
@@ -282,5 +350,18 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     marginTop: 12,
+  },
+  lockButton: {
+    marginTop: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#FFFFFF',
+  },
+  lockButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

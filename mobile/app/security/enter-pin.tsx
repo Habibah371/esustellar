@@ -3,6 +3,7 @@ import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Button from '../../components/ui/Button';
 import { PinPad } from '../../components/security/PinPad';
+import { notifyAppUnlocked } from '../../services/security/appLock';
 import { pinService } from '../../services/security/pinService';
 import { PIN_LENGTH } from '../../services/security/pinPolicy';
 
@@ -44,6 +45,10 @@ export default function EnterPinScreen() {
 
     if (reason === 'biometric-fallback') {
       return 'Biometric sign-in failed, so your PIN is being used as a fallback.';
+    }
+
+    if (reason === 'auto-lock') {
+      return 'Enter your PIN to unlock the app.';
     }
 
     return `You have ${remainingAttempts} attempt${
@@ -125,6 +130,10 @@ export default function EnterPinScreen() {
         if (returnTo) {
           router.replace(returnTo);
           return;
+        }
+
+        if (reason === 'auto-lock' || reason === 'biometric-fallback') {
+          notifyAppUnlocked();
         }
 
         router.back();

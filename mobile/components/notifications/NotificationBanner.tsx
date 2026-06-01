@@ -57,10 +57,10 @@ export function NotificationBanner({
 
 const styles = StyleSheet.create({
   wrapper: {
-    left: 0,
     paddingHorizontal: 16,
     position: 'absolute',
-    right: 0,
+    start: 0,
+    end: 0,
     top: 56,
     zIndex: 100,
   },
@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingRight: 12,
+    paddingEnd: 12,
   },
   title: {
     color: '#F9FAFB',
