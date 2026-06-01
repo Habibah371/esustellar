@@ -47,6 +47,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { useAuthStore } from '../../store/authStore';
 import { getActiveWallet, WalletEntry } from '../../services/wallet/multiWallet';
 import * as Clipboard from 'expo-clipboard';
+import ExperimentalFeatures from '../../components/ExperimentalFeatures';
 import {
   loadHapticsPreference,
   setHapticsEnabled as persistHapticsEnabled,
@@ -504,6 +505,8 @@ export default function SettingsScreen() {
           </Button>
         </View>
 
+        <ExperimentalFeatures />
+
         {/* Auto-lock */}
         <View
           style={[
@@ -626,4 +629,3 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
 });
-

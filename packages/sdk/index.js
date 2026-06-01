@@ -28,6 +28,28 @@ function createSavingsSdk({ contractId, networkPassphrase, rpcUrl, sourceAccount
   }
 
   return {
+    async getGroup(groupId) {
+      const res = await simulate(
+        "get_group",
+        nativeToScVal(groupId, { type: "string" }),
+      );
+      const n = scValToNative(res);
+      return {
+        groupId: n.group_id ?? n.groupId,
+        admin: n.admin,
+        name: n.name,
+        contributionAmount: BigInt(
+          n.contribution_amount ?? n.contributionAmount ?? 0,
+        ),
+        totalMembers: n.total_members ?? n.totalMembers ?? 0,
+        frequency: unwrapEnum(n.frequency),
+        startTimestamp: BigInt(n.start_timestamp ?? n.startTimestamp ?? 0),
+        status: unwrapEnum(n.status),
+        isPublic: n.is_public ?? n.isPublic ?? false,
+        currentRound: n.current_round ?? n.currentRound ?? 0,
+        platformFeePercent: n.platform_fee_percent ?? n.platformFeePercent ?? 0,
+      };
+    },
     async getMember(member, groupId) {
       const res = await simulate(
         "get_member",
