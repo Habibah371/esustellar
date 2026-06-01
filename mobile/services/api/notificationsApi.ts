@@ -27,6 +27,7 @@ class NotificationsApiService {
       const mockNotifications: Notification[] = [
         {
           id: 'notif_1',
+          type: 'contribution',
           title: 'Contribution Due',
           message: 'Your monthly contribution to Family Savings Circle is due.',
           read: false,
@@ -34,6 +35,7 @@ class NotificationsApiService {
         },
         {
           id: 'notif_2',
+          type: 'payout',
           title: 'Payout Received',
           message: 'You have received a payout of 600 XLM from Investment Club.',
           read: false,
