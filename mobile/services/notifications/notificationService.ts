@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
+import { SilentNotificationType } from './silent';
 import { isInDndWindow } from './dndService';
 
 export const NOTIFICATION_PROMPT_HANDLED_KEY =
@@ -91,3 +92,29 @@ export async function scheduleLocalNotification(options?: {
     } as Notifications.TimeIntervalTriggerInput,
   });
 }
+
+/**
+ * Schedule a silent notification for background data sync
+ * @param syncType The type of data to sync (groups, transactions, notifications, or all)
+ * @param additionalData Optional additional data to include in the notification
+ */
+export async function scheduleSilentNotification(
+  syncType: SilentNotificationType,
+  additionalData?: Record<string, unknown>
+): Promise<string> {
+  return Notifications.scheduleNotificationAsync({
+    content: {
+      title: '',
+      body: '',
+      data: {
+        silent: true,
+        syncType,
+        ...additionalData,
+      },
+    },
+    trigger: {
+      seconds: 1,
+    } as Notifications.TimeIntervalTriggerInput,
+  });
+}
+

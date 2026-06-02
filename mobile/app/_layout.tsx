@@ -19,6 +19,7 @@ import { NotificationBanner } from '../components/notifications/NotificationBann
 import { loadLanguage } from '../constants/i18n';
 import { ThemeProvider, useTheme } from '../context/ThemeContext';
 import { useAutoLock, recordInteraction } from '../hooks/useAutoLock';
+import { silentNotificationHandler } from '../services/notifications/silent';
 import i18n from '../i18n';
 import { getRouteFromNotificationData } from '../services/notifications/notificationRouting';
 import { queryClient } from '../services/queryClient';
@@ -274,7 +275,15 @@ function RootLayoutContent() {
   useEffect(() => {
     const receivedSubscription = Notifications.addNotificationReceivedListener(
       (notification) => {
-        showBanner(notification);
+        // Handle silent notifications in background without showing banner
+        if (silentNotificationHandler.isSilent(notification)) {
+          silentNotificationHandler.handleSilentNotification(notification).catch((error) => {
+            console.error('Failed to handle silent notification:', error);
+          });
+        } else {
+          // Show banner for regular notifications
+          showBanner(notification);
+        }
       },
     );
     const responseSubscription =
