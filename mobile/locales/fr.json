@@ -84,6 +84,43 @@
     "languageLabel": "Choisissez la langue de l'application",
     "languageChangeSuccess": "Langue mise à jour."
   },
+  "notifications": {
+    "title": "Notifications",
+    "subtitle": "Déclenchez une notification locale pour vérifier les bannières au premier plan et la navigation tactile.",
+    "scheduleGroupDetail": "Planifier la notification des détails du groupe",
+    "scheduleFallback": "Planifier la notification de secours",
+    "markAllAsRead": "Marquer tout comme lu",
+    "categories": {
+      "all": "Tous",
+      "payments": "Paiements",
+      "members": "Membres",
+      "updates": "Mises à jour",
+      "groups": "Groupes"
+    },
+    "contributionDueTitle": "Contribution due",
+    "contributionDueBody": "Appuyez pour ouvrir l'écran des détails du groupe.",
+    "unknownDestinationTitle": "Destination inconnue",
+    "unknownDestinationBody": "Appuyez pour tester l'itinéraire de secours de l'écran d'accueil.",
+    "scheduledTitle": "Notification planifiée",
+    "scheduledBody": "Une notification de test apparaîtra dans 2 secondes.",
+    "fallbackScheduledTitle": "Notification de secours planifiée",
+    "fallbackScheduledBody": "Une notification de test avec un itinéraire inconnu apparaîtra dans 2 secondes.",
+    "unableToScheduleTitle": "Impossible de planifier la notification",
+    "unableToScheduleBody": "Veuillez réessayer."
+  },
+  "notificationSettings": {
+    "loading": "Chargement des paramètres...",
+    "title": "Paramètres de notification",
+    "description": "Choisissez les notifications push que vous souhaitez recevoir",
+    "contributionRemindersTitle": "Rappels de contribution",
+    "contributionRemindersDescription": "Recevez des notifications lorsque vos contributions sont dues",
+    "payoutReceivedTitle": "Paiement reçu",
+    "payoutReceivedDescription": "Notifications lorsque vous recevez des paiements",
+    "newMemberJoinedTitle": "Nouveau membre rejoint",
+    "newMemberJoinedDescription": "Quand de nouveaux membres rejoignent vos groupes",
+    "groupStatusChangesTitle": "Changements d'état du groupe",
+    "groupStatusChangesDescription": "Mises à jour lorsque l'état du groupe change"
+  },
   "profile": {
     "editProfile": "Modifier le profil",
     "settings": "Paramètres",

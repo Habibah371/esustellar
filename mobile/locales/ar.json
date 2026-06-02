@@ -115,7 +115,13 @@
     "subtitle": "قم بتشغيل تنبيه محلي للتحقق من لافتات المقدمة والتنقل بالنقر.",
     "scheduleGroupDetail": "جدولة تنبيه تفاصيل المجموعة",
     "scheduleFallback": "جدولة تنبيه بديل",
-    "contributionDueTitle": "استحقاق المساهمة",
+    "markAllAsRead": "وضع علامة على الكل كمقروءة",    "categories": {
+      "all": "الكل",
+      "payments": "المدفوعات",
+      "members": "الأعضاء",
+      "updates": "التحديثات",
+      "groups": "المجموعات"
+    },    "contributionDueTitle": "استحقاق المساهمة",
     "contributionDueBody": "انقر لفتح شاشة تفاصيل المجموعة.",
     "unknownDestinationTitle": "وجهة غير معروفة",
     "unknownDestinationBody": "انقر لاختبار مسار البديل للشاشة الرئيسية.",

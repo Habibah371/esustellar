@@ -84,6 +84,43 @@
     "languageLabel": "Elige el idioma de la aplicación",
     "languageChangeSuccess": "Idioma actualizado."
   },
+  "notifications": {
+    "title": "Notificaciones",
+    "subtitle": "Activa una notificación local para verificar los banners en primer plano y la navegación al tocar.",
+    "scheduleGroupDetail": "Programar notificación de detalles del grupo",
+    "scheduleFallback": "Programar notificación de respaldo",
+    "markAllAsRead": "Marcar todas como leídas",
+    "categories": {
+      "all": "Todas",
+      "payments": "Pagos",
+      "members": "Miembros",
+      "updates": "Actualizaciones",
+      "groups": "Grupos"
+    },
+    "contributionDueTitle": "Contribución vencida",
+    "contributionDueBody": "Toca para abrir la pantalla de detalles del grupo.",
+    "unknownDestinationTitle": "Destino desconocido",
+    "unknownDestinationBody": "Toca para probar la ruta alternativa de la pantalla de inicio.",
+    "scheduledTitle": "Notificación programada",
+    "scheduledBody": "Una notificación de prueba aparecerá en 2 segundos.",
+    "fallbackScheduledTitle": "Notificación de respaldo programada",
+    "fallbackScheduledBody": "Una notificación de prueba con ruta desconocida aparecerá en 2 segundos.",
+    "unableToScheduleTitle": "No se puede programar la notificación",
+    "unableToScheduleBody": "Por favor, inténtalo de nuevo."
+  },
+  "notificationSettings": {
+    "loading": "Cargando configuración...",
+    "title": "Configuración de notificaciones",
+    "description": "Elige qué notificaciones push quieres recibir",
+    "contributionRemindersTitle": "Recordatorios de contribución",
+    "contributionRemindersDescription": "Recibe notificaciones cuando tus contribuciones vencen",
+    "payoutReceivedTitle": "Pago recibido",
+    "payoutReceivedDescription": "Notificaciones cuando recibes pagos",
+    "newMemberJoinedTitle": "Nuevo miembro se unió",
+    "newMemberJoinedDescription": "Cuando nuevos miembros se unen a tus grupos",
+    "groupStatusChangesTitle": "Cambios en el estado del grupo",
+    "groupStatusChangesDescription": "Actualizaciones cuando cambia el estado del grupo"
+  },
   "profile": {
     "editProfile": "Editar perfil",
     "settings": "Ajustes",

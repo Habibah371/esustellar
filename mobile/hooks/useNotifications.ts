@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { notificationsApi } from '../services/api/notificationsApi';
 import { queryKeys } from '../services/queryClient';
 
@@ -17,4 +17,24 @@ export function useInvalidateNotifications() {
     () => queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all }),
     [queryClient],
   );
+}
+
+export function useMarkNotificationRead() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (notificationId: string) => notificationsApi.markNotificationRead(notificationId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all });
+    },
+  });
+}
+
+export function useMarkAllNotificationsRead() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (userAddress: string) => notificationsApi.markAllNotificationsRead(userAddress),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all });
+    },
+  });
 }
