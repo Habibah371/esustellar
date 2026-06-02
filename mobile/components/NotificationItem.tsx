@@ -1,9 +1,10 @@
 import React, { useCallback, useMemo } from 'react';
-import { TouchableOpacity, Text, View, StyleSheet } from 'react-native';
+import { Platform, Pressable, Text, View, StyleSheet } from 'react-native';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { Notification } from '../types/notification';
 import { useNotificationsStore } from '../stores/notificationsStore';
+import { runAfterInteractions } from '../services/performance/interactionManager';
 
 dayjs.extend(relativeTime);
 
@@ -31,7 +32,10 @@ function NotificationItemComponent({ item }: Props) {
 
   const handlePress = useCallback(() => {
     if (!item.read) {
-      markRead(item.id);
+      // Defer the store write until after the press animation settles.
+      // This prevents a synchronous state update from blocking the touch
+      // response on Android, where JS-thread work during a press is noticeable.
+      runAfterInteractions(() => markRead(item.id), 'notification-mark-read');
     }
   }, [item.id, item.read, markRead]);
 
@@ -39,7 +43,16 @@ function NotificationItemComponent({ item }: Props) {
   const icon = typeToEmoji[item.type ?? 'status'];
 
   return (
-    <TouchableOpacity onPress={handlePress} style={styles.touchable}>
+    <Pressable
+      onPress={handlePress}
+      // Android: native ripple bounded to the item row.
+      // iOS: opacity feedback without ripple (matches system behaviour).
+      android_ripple={Platform.OS === 'android' ? { color: '#E5E7EB' } : undefined}
+      style={({ pressed }) => [
+        styles.touchable,
+        Platform.OS === 'ios' && pressed && { opacity: 0.7 },
+      ]}
+    >
       <View style={[styles.container, item.read ? styles.read : styles.unread]}>
         <View style={styles.iconWrapper}>
           <Text style={styles.icon}>{icon}</Text>
@@ -56,7 +69,7 @@ function NotificationItemComponent({ item }: Props) {
           </Text>
         </View>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 

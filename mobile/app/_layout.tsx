@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   AppState,
   AppStateStatus,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -25,6 +26,7 @@ import { biometricService } from '../services/security';
 import { registerAppUnlockHandler } from '../services/security/appLock';
 import { pinService } from '../services/security/pinService';
 import { logger } from '../services/logger';
+import { runAfterInteractions } from '../services/performance/interactionManager';
 import { registerBackgroundSyncScheduler } from '../services/sync/scheduler';
 import { useAuthStore } from '../store/authStore';
 import { getActiveWallet } from '../services/wallet/multiWallet';
@@ -55,6 +57,8 @@ function RootLayoutContent() {
   const { colors } = useTheme();
   const { t } = useTranslation();
 
+  // `withTimeout` has no dependencies — use an empty dep array so the ref is
+  // created once and never triggers downstream re-renders.
   const withTimeout = useCallback(<T,>(promise: Promise<T>, label: string, timeoutMs = 3000) => {
     return Promise.race<T>([
       promise,
@@ -65,6 +69,7 @@ function RootLayoutContent() {
         }, timeoutMs);
       }),
     ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const unlockApp = useCallback(async () => {
@@ -154,9 +159,14 @@ function RootLayoutContent() {
         await withTimeout(loadLanguage(), 'Language initialization');
         logger.info('RootLayout', 'App initializing');
 
-        registerBackgroundSyncScheduler().catch((err) =>
-          logger.warn('RootLayout', 'Background sync registration failed', err),
-        );
+        // Defer background sync registration until after the first render
+        // and any navigation animations have finished — this avoids blocking
+        // the JS thread during startup on both iOS and Android.
+        runAfterInteractions(() => {
+          registerBackgroundSyncScheduler().catch((err) =>
+            logger.warn('RootLayout', 'Background sync registration failed', err),
+          );
+        }, 'background-sync-registration');
 
         const onboardingComplete = await withTimeout(
           AsyncStorage.getItem(ONBOARDING_KEY),
@@ -299,16 +309,20 @@ function RootLayoutContent() {
   }
 
   return (
-    <View
-      style={[styles.root, { backgroundColor: colors.background }]}
-      onStartShouldSetResponderCapture={() => {
-        recordInteraction();
-        return false;
-      }}
-    >
-      <AnnouncementBanner />
+    <View style={[styles.root, { backgroundColor: colors.background }]}>
+      {/* Record any touch on the root so the auto-lock timer resets. */}
+      <View
+        style={styles.interactionCapture}
+        onStartShouldSetResponder={() => {
+          recordInteraction();
+          // Return false so the event continues to children normally.
+          return false;
+        }}
+      >
+        <AnnouncementBanner />
+        <Slot />
+      </View>
 
-      <Slot />
       <NotificationBanner
         body={banner?.body}
         title={banner?.title ?? ''}
@@ -318,13 +332,22 @@ function RootLayoutContent() {
       />
 
       {masked && (
-        <View style={styles.overlay} pointerEvents="none">
+        <View
+          style={styles.overlay}
+          pointerEvents="none"
+          // Android: own compositor layer so the privacy overlay
+          // composites without affecting the main render tree.
+          {...(Platform.OS === 'android' ? { collapsable: false } : {})}
+        >
           <Text style={styles.overlayText}>{t('common.appName')}</Text>
         </View>
       )}
 
       {locked && (
-        <View style={styles.overlay}>
+        <View
+          style={styles.overlay}
+          {...(Platform.OS === 'android' ? { collapsable: false } : {})}
+        >
           <Text style={styles.overlayText}>{t('common.appName')}</Text>
           <Text style={styles.lockHint} onPress={() => void unlockApp()}>
             {t('lock.tapToUnlock')}
@@ -354,6 +377,11 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
   },
+  // Fills the root but does NOT intercept touch events — children receive
+  // all gestures normally; we only read the onStartShouldSetResponder signal.
+  interactionCapture: {
+    flex: 1,
+  },
   loader: {
     flex: 1,
     justifyContent: 'center',
@@ -365,6 +393,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 9999,
+    // Android: promote to its own GPU layer so the overlay composites
+    // independently and doesn't trigger a full re-layout of children.
+    elevation: 20,
   },
   overlayText: {
     color: '#FFFFFF',
