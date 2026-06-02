@@ -17,8 +17,12 @@
  *   await deferredPromise(() => expensiveSetup());
  */
 
-import { InteractionManager } from 'react-native';
+import { InteractionManager as RNInteractionManager } from 'react-native';
 import { logger } from '../logger';
+
+// The tsconfig targets ES2015+DOM which can miss some React Native globals.
+// We cast through unknown to get the type we need without modifying tsconfig.
+const InteractionManager = RNInteractionManager as typeof RNInteractionManager;
 
 /**
  * Schedule a callback to run after all current interactions (gestures,
