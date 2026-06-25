@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export type PerformanceMetric = {
+export type StoredMetric = {
   name: string;
   durationMs: number;
   recordedAt: string;
@@ -8,10 +8,10 @@ export type PerformanceMetric = {
 
 const PERFORMANCE_METRICS_KEY = 'esustellar_performance_metrics';
 
-export async function recordPerformanceMetric(metric: PerformanceMetric): Promise<void> {
+export async function recordPerformanceMetric(metric: StoredMetric): Promise<void> {
   try {
     const existing = await AsyncStorage.getItem(PERFORMANCE_METRICS_KEY);
-    const metrics = existing ? (JSON.parse(existing) as PerformanceMetric[]) : [];
+    const metrics = existing ? (JSON.parse(existing) as StoredMetric[]) : [];
     await AsyncStorage.setItem(PERFORMANCE_METRICS_KEY, JSON.stringify([...metrics, metric]));
     console.log(`[performance] ${metric.name}: ${metric.durationMs}ms`);
   } catch (error) {
@@ -27,11 +27,29 @@ export async function logStartupMetric(durationMs: number): Promise<void> {
   });
 }
 
-export async function getPerformanceMetrics(): Promise<PerformanceMetric[]> {
+export async function getPerformanceMetrics(): Promise<StoredMetric[]> {
   try {
     const stored = await AsyncStorage.getItem(PERFORMANCE_METRICS_KEY);
-    return stored ? (JSON.parse(stored) as PerformanceMetric[]) : [];
+    return stored ? (JSON.parse(stored) as StoredMetric[]) : [];
   } catch {
     return [];
   }
 }
+
+export type {
+  PerformanceMetric,
+  MetricTag,
+  MetricReport,
+  MetricListener,
+} from './performanceTypes';
+
+export {
+  startMonitoring,
+  stopMonitoring,
+  trackMetric,
+  trackScreenLoad,
+  trackApiResponse,
+  trackError,
+  onMetric,
+  getBufferedMetrics,
+} from './monitoringService';
