@@ -15,6 +15,8 @@ import {
   registerForPushNotificationsAsync,
 } from '../../services/notifications/notificationService';
 
+import PaginationDots from '../../components/onboarding/PaginationDots';
+
 const ONBOARDING_KEY = 'onboardingComplete';
 
 const SLIDES = [
@@ -119,17 +121,7 @@ export default function OnboardingScreen() {
         <Text style={styles.description}>{slide.description}</Text>
       </View>
 
-      <View style={styles.progressRow}>
-        {SLIDES.map((_, index) => (
-          <View
-            key={index}
-            style={[
-              styles.progressDot,
-              index === currentStep ? styles.progressDotActive : null,
-            ]}
-          />
-        ))}
-      </View>
+      <PaginationDots total={SLIDES.length} current={currentStep} />
 
       <Pressable
         accessibilityRole="button"
@@ -149,6 +141,17 @@ export default function OnboardingScreen() {
           style={styles.secondaryButton}
         >
           <Text style={styles.secondaryButtonText}>Recover existing wallet</Text>
+        </Pressable>
+      )}
+
+      {isLastStep && (
+        <Pressable
+          accessibilityRole="link"
+          onPress={() => router.push('/onboarding/how-it-works')}
+          style={styles.howItWorksLink}
+          testID="onboarding-how-it-works"
+        >
+          <Text style={styles.howItWorksText}>See how it works first</Text>
         </Pressable>
       )}
 
@@ -340,5 +343,16 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: {
     opacity: 0.6,
+  },
+  howItWorksLink: {
+    alignItems: 'center',
+    marginTop: 12,
+    paddingVertical: 8,
+  },
+  howItWorksText: {
+    color: '#818CF8',
+    fontSize: 14,
+    fontWeight: '600',
+    textDecorationLine: 'underline',
   },
 });

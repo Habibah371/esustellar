@@ -1,23 +1,38 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet, SafeAreaView } from 'react-native';
+import { useRouter } from 'expo-router';
+
+const ONBOARDING_KEY = 'onboardingComplete';
 
 const STEPS = [
-  { icon: '👥', title: 'Create or join a savings group', description: 'Start a new group or join an existing one in your community.' },
-  { icon: '💳', title: 'Contribute monthly with your Stellar wallet', description: 'Send your fixed contribution each month using your Stellar wallet.' },
-  { icon: '🔄', title: 'Receive payouts in rotating order', description: 'Each member receives the full pool in a fair, transparent rotation.' },
+  {
+    icon: '👥',
+    title: 'Create or join a savings group',
+    description: 'Start a new group or join an existing one in your community.',
+  },
+  {
+    icon: '💳',
+    title: 'Contribute monthly with your Stellar wallet',
+    description: 'Send your fixed contribution each month using your Stellar wallet.',
+  },
+  {
+    icon: '🔄',
+    title: 'Receive payouts in rotating order',
+    description: 'Each member receives the full pool in a fair, transparent rotation.',
+  },
 ];
 
-interface Props {
-  navigation?: { goBack: () => void; navigate: (screen: string) => void };
-}
+export default function HowItWorksScreen() {
+  const router = useRouter();
 
-export default function HowItWorksScreen({ navigation }: Props) {
+  const handleGetStarted = async () => {
+    await AsyncStorage.setItem(ONBOARDING_KEY, 'true');
+    router.replace('/wallet/connect');
+  };
+
   return (
-    <View style={styles.container}>
-      <Pressable style={styles.skip} onPress={() => navigation?.navigate('Home')}>
-        <Text style={styles.skipText}>Skip</Text>
-      </Pressable>
-
+    <SafeAreaView style={styles.container} testID="how-it-works-screen">
       <Text style={styles.heading}>How It Works</Text>
 
       {STEPS.map((step, index) => (
@@ -32,21 +47,29 @@ export default function HowItWorksScreen({ navigation }: Props) {
       ))}
 
       <View style={styles.nav}>
-        <Pressable style={styles.navButton} onPress={() => navigation?.goBack()}>
+        <Pressable
+          accessibilityRole="button"
+          style={styles.navButton}
+          onPress={() => router.back()}
+          testID="how-it-works-back"
+        >
           <Text style={styles.navButtonText}>Back</Text>
         </Pressable>
-        <Pressable style={[styles.navButton, styles.navButtonPrimary]} onPress={() => navigation?.navigate('SignUp')}>
-          <Text style={[styles.navButtonText, styles.navButtonTextPrimary]}>Next</Text>
+        <Pressable
+          accessibilityRole="button"
+          style={[styles.navButton, styles.navButtonPrimary]}
+          onPress={handleGetStarted}
+          testID="how-it-works-get-started"
+        >
+          <Text style={[styles.navButtonText, styles.navButtonTextPrimary]}>Get Started</Text>
         </Pressable>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#0F172A', padding: 24, paddingTop: 48 },
-  skip: { alignSelf: 'flex-end', marginBottom: 24 },
-  skipText: { color: '#94A3B8', fontSize: 14 },
   heading: { fontSize: 24, fontWeight: '700', color: '#F1F5F9', marginBottom: 32 },
   step: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 28 },
   stepNumber: {
@@ -66,7 +89,12 @@ const styles = StyleSheet.create({
   stepIcon: { fontSize: 24, marginBottom: 4 },
   stepTitle: { fontSize: 16, fontWeight: '600', color: '#F1F5F9', marginBottom: 4 },
   stepDescription: { fontSize: 13, color: '#94A3B8', lineHeight: 20 },
-  nav: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 'auto', paddingTop: 32 },
+  nav: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 'auto',
+    paddingTop: 32,
+  },
   navButton: {
     flex: 1,
     paddingVertical: 14,
@@ -76,7 +104,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginHorizontal: 6,
   },
-  navButtonPrimary: { backgroundColor: '#2563EB', borderColor: '#2563EB' },
+  navButtonPrimary: { backgroundColor: '#6366F1', borderColor: '#6366F1' },
   navButtonText: { color: '#94A3B8', fontWeight: '600', fontSize: 15 },
   navButtonTextPrimary: { color: '#FFFFFF' },
 });

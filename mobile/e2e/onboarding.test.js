@@ -26,4 +26,20 @@ describe('Onboarding flow', () => {
     await element(by.id('onboarding-skip')).tap();
     await expect(element(by.id('onboarding-screen-1'))).not.toBeVisible();
   });
+
+  it('opens how it works screen from last slide', async () => {
+    await element(by.id('onboarding-next')).tap();
+    await element(by.id('onboarding-next')).tap();
+    await expect(element(by.id('onboarding-screen-3'))).toBeVisible();
+    await element(by.id('onboarding-how-it-works')).tap();
+    await expect(element(by.id('how-it-works-screen'))).toBeVisible();
+  });
+
+  it('navigates back from how it works to onboarding', async () => {
+    await element(by.id('onboarding-next')).tap();
+    await element(by.id('onboarding-next')).tap();
+    await element(by.id('onboarding-how-it-works')).tap();
+    await element(by.id('how-it-works-back')).tap();
+    await expect(element(by.id('onboarding-screen-3'))).toBeVisible();
+  });
 });
